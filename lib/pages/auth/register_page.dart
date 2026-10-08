@@ -16,6 +16,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController passwordController = TextEditingController();
 
   bool isLoading = false;
+  bool isPasswordVisible = false;
 
   @override
   void dispose() {
@@ -84,8 +85,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Registrasi berhasil! Silakan login.'),
-            backgroundColor: Colors.green,
+            content: Text(
+              'Registrasi berhasil! Silakan login.',
+            ),
+            backgroundColor: Color(0xFF00897B),
           ),
         );
 
@@ -127,122 +130,534 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   // ============================================================
+  // INPUT FIELD
+  // ============================================================
+
+  InputDecoration _inputDecoration({
+    required String hint,
+    required IconData icon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+
+      hintStyle: const TextStyle(
+        fontSize: 13,
+      ),
+
+      prefixIcon: Icon(
+        icon,
+        color: const Color(0xFF00897B),
+        size: 20,
+      ),
+
+      suffixIcon: suffixIcon,
+
+      filled: true,
+
+      fillColor: const Color(0xFFE0F2F1),
+
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: BorderSide.none,
+      ),
+
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: BorderSide.none,
+      ),
+
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: const BorderSide(
+          color: Color(0xFF00897B),
+          width: 1.3,
+        ),
+      ),
+
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 12,
+      ),
+    );
+  }
+
+  // ============================================================
   // TAMPILAN
   // ============================================================
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daftar'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Buat Akun',
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+      resizeToAvoidBottomInset: true,
 
-            const SizedBox(height: 8),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
 
-            const Text(
-              'Silakan isi data untuk membuat akun baru.',
-              style: TextStyle(
-                color: Colors.grey,
-              ),
-            ),
+        // ======================================================
+        // BACKGROUND HIJAU
+        // ======================================================
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF00695C),
+              Color(0xFF00897B),
+              Color(0xFF4DB6AC),
+            ],
+          ),
+        ),
 
-            const SizedBox(height: 30),
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
 
-            const Text(
-              'Nama Lengkap',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ),
 
-            const SizedBox(height: 8),
-
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                hintText: 'Masukkan nama lengkap',
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              'Email',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                hintText: 'Masukkan email',
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              'Password',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                hintText: 'Masukkan password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: isLoading ? null : register,
-                child: isLoading
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text(
-                        'Daftar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 22,
+                        vertical: 12,
                       ),
-              ),
-            ),
-          ],
+
+                      child: Column(
+                        mainAxisAlignment:
+                            MainAxisAlignment.center,
+
+                        children: [
+
+                          // ==================================================
+                          // TOMBOL KEMBALI
+                          // ==================================================
+                          Align(
+                            alignment: Alignment.centerLeft,
+
+                            child: IconButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+
+                              icon: const Icon(
+                                Icons.arrow_back_rounded,
+                                color: Colors.white,
+                                size: 25,
+                              ),
+
+                              style: IconButton.styleFrom(
+                                backgroundColor:
+                                    Colors.white.withOpacity(0.15),
+                                padding:
+                                    const EdgeInsets.all(8),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 3),
+
+                          // ==================================================
+                          // LOGO
+                          // ==================================================
+                          Container(
+                            width: 65,
+                            height: 65,
+
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  BorderRadius.circular(19),
+
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      Colors.black.withOpacity(0.15),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 7),
+                                ),
+                              ],
+                            ),
+
+                            child: const Icon(
+                              Icons.person_add_alt_1_rounded,
+                              size: 35,
+                              color: Color(0xFF00695C),
+                            ),
+                          ),
+
+                          const SizedBox(height: 9),
+
+                          // ==================================================
+                          // NAMA APLIKASI
+                          // ==================================================
+                          const Text(
+                            'MyEkskul',
+
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+
+                          const SizedBox(height: 2),
+
+                          Text(
+                            'Buat akun dan mulai temukan potensimu',
+
+                            textAlign: TextAlign.center,
+
+                            style: TextStyle(
+                              color:
+                                  Colors.white.withOpacity(0.9),
+                              fontSize: 11.5,
+                            ),
+                          ),
+
+                          const SizedBox(height: 14),
+
+                          // ==================================================
+                          // REGISTER CARD
+                          // ==================================================
+                          Container(
+                            width: double.infinity,
+
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 18,
+                            ),
+
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  BorderRadius.circular(24),
+
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      Colors.black.withOpacity(0.18),
+                                  blurRadius: 25,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+
+                            child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+
+                              children: [
+
+                                // ==========================================
+                                // JUDUL
+                                // ==========================================
+                                const Text(
+                                  'Buat Akun ✨',
+
+                                  style: TextStyle(
+                                    fontSize: 21,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF263238),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 3),
+
+                                Text(
+                                  'Silakan isi data untuk membuat akun baru.',
+
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 14),
+
+                                // ==========================================
+                                // NAMA
+                                // ==========================================
+                                const Text(
+                                  'Nama Lengkap',
+
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF37474F),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 5),
+
+                                SizedBox(
+                                  height: 48,
+
+                                  child: TextField(
+                                    controller: nameController,
+
+                                    textCapitalization:
+                                        TextCapitalization.words,
+
+                                    decoration: _inputDecoration(
+                                      hint:
+                                          'Masukkan nama lengkap',
+                                      icon:
+                                          Icons.person_outline_rounded,
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 11),
+
+                                // ==========================================
+                                // EMAIL
+                                // ==========================================
+                                const Text(
+                                  'Email',
+
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF37474F),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 5),
+
+                                SizedBox(
+                                  height: 48,
+
+                                  child: TextField(
+                                    controller: emailController,
+
+                                    keyboardType:
+                                        TextInputType.emailAddress,
+
+                                    decoration: _inputDecoration(
+                                      hint: 'Masukkan email',
+                                      icon:
+                                          Icons.email_outlined,
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 11),
+
+                                // ==========================================
+                                // PASSWORD
+                                // ==========================================
+                                const Text(
+                                  'Password',
+
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF37474F),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 5),
+
+                                SizedBox(
+                                  height: 48,
+
+                                  child: TextField(
+                                    controller:
+                                        passwordController,
+
+                                    obscureText:
+                                        !isPasswordVisible,
+
+                                    decoration:
+                                        _inputDecoration(
+                                      hint:
+                                          'Minimal 6 karakter',
+
+                                      icon:
+                                          Icons.lock_outline_rounded,
+
+                                      suffixIcon: IconButton(
+                                        padding: EdgeInsets.zero,
+
+                                        onPressed: () {
+                                          setState(() {
+                                            isPasswordVisible =
+                                                !isPasswordVisible;
+                                          });
+                                        },
+
+                                        icon: Icon(
+                                          isPasswordVisible
+                                              ? Icons
+                                                  .visibility_outlined
+                                              : Icons
+                                                  .visibility_off_outlined,
+
+                                          color:
+                                              Colors.grey.shade600,
+
+                                          size: 19,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 16),
+
+                                // ==========================================
+                                // BUTTON DAFTAR
+                                // ==========================================
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 48,
+
+                                  child: ElevatedButton(
+                                    onPressed:
+                                        isLoading
+                                            ? null
+                                            : register,
+
+                                    style:
+                                        ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          const Color(0xFF00695C),
+
+                                      foregroundColor:
+                                          Colors.white,
+
+                                      disabledBackgroundColor:
+                                          const Color(0xFF80CBC4),
+
+                                      elevation: 3,
+
+                                      shape:
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(13),
+                                      ),
+                                    ),
+
+                                    child: isLoading
+                                        ? const SizedBox(
+                                            width: 21,
+                                            height: 21,
+
+                                            child:
+                                                CircularProgressIndicator(
+                                              strokeWidth: 2.5,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : const Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+
+                                            children: [
+                                              Text(
+                                                'Daftar',
+
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight:
+                                                      FontWeight.bold,
+                                                ),
+                                              ),
+
+                                              SizedBox(width: 7),
+
+                                              Icon(
+                                                Icons
+                                                    .arrow_forward_rounded,
+                                                size: 18,
+                                              ),
+                                            ],
+                                          ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 12),
+
+                                // ==========================================
+                                // LINK LOGIN
+                                // ==========================================
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.center,
+
+                                  children: [
+                                    Text(
+                                      'Sudah punya akun?',
+
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color:
+                                            Colors.grey.shade600,
+                                      ),
+                                    ),
+
+                                    const SizedBox(width: 4),
+
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+
+                                      style:
+                                          TextButton.styleFrom(
+                                        padding: EdgeInsets.zero,
+                                        minimumSize: Size.zero,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize
+                                                .shrinkWrap,
+                                      ),
+
+                                      child: const Text(
+                                        'Login sekarang',
+
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight:
+                                              FontWeight.bold,
+                                          color:
+                                              Color(0xFF00695C),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 9),
+
+                          // ==================================================
+                          // FOOTER
+                          // ==================================================
+                          Text(
+                            '© MyEkskul • Temukan Potensimu',
+
+                            style: TextStyle(
+                              color:
+                                  Colors.white.withOpacity(0.75),
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
