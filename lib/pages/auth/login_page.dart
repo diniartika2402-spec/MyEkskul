@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
 import 'register_page.dart';
 import '../user/dashboard_page.dart';
 import '../admin/admin_dashboard_page.dart';
@@ -28,15 +26,16 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  // =========================================================
+  // LOGIN
+  // =========================================================
   Future<void> login() async {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-
-    // Validasi input
-    if (email.isEmpty || password.isEmpty) {
+    if (emailController.text.trim().isEmpty ||
+        passwordController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Email dan password harus diisi'),
+          content: Text('Email dan password wajib diisi'),
+          backgroundColor: Colors.red,
         ),
       );
       return;
@@ -47,81 +46,52 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      // Kirim email dan password ke API
       final response = await http.post(
         Uri.parse(
           'http://10.0.2.2/myekskul_api/auth/login.php',
         ),
         body: {
-          'email': email,
-          'password': password,
+          'email': emailController.text.trim(),
+          'password': passwordController.text.trim(),
         },
       );
 
-      // Cek response dari server
       final data = jsonDecode(response.body);
 
       if (!mounted) return;
 
       if (data['success'] == true) {
-        // ======================================================
-        // AMBIL DATA USER DARI RESPONSE API
-        // ======================================================
-
-        final userData = data['data'];
-
-        final int userId = int.parse(
-          userData['id'].toString(),
-        );
-
-        final String nama = userData['nama'].toString();
-        final String userEmail = userData['email'].toString();
-        final String role = userData['role'].toString();
-
-        // ======================================================
-        // LOGIN BERHASIL
-        // ======================================================
+        final int userId = int.parse(data['id'].toString());
+        final String nama = data['nama'].toString();
+        final String email = data['email'].toString();
+        final String role = data['role'].toString();
 
         if (role == 'admin') {
-          // Masuk ke dashboard admin
-          Navigator.of(context).pushReplacement(
+          Navigator.pushReplacement(
+            context,
             MaterialPageRoute(
-              builder: (_) => const AdminDashboardPage(),
+              builder: (context) => const AdminDashboardPage(),
             ),
           );
         } else {
-          // ====================================================
-          // USER BIASA
-          // ID USER DIKIRIM KE DASHBOARD
-          // ====================================================
-
-          Navigator.of(context).pushReplacement(
+          Navigator.pushReplacement(
+            context,
             MaterialPageRoute(
-              builder: (_) => DashboardPage(
-  userId: userId,
-  nama: nama,
-  email: userEmail,
-),
+              builder: (context) => DashboardPage(
+                userId: userId,
+                nama: nama,
+                email: email,
+              ),
             ),
           );
         }
-
-        // Supaya variabel tidak dianggap tidak digunakan
-        debugPrint('Login berhasil');
-        debugPrint('User ID   : $userId');
-        debugPrint('Nama      : $nama');
-        debugPrint('Email     : $userEmail');
-        debugPrint('Role      : $role');
       } else {
-        // ======================================================
-        // LOGIN GAGAL
-        // ======================================================
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               data['message'] ?? 'Email atau password salah',
             ),
+            backgroundColor: Colors.red,
           ),
         );
       }
@@ -129,10 +99,9 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Tidak dapat terhubung ke server: $e',
-          ),
+        const SnackBar(
+          content: Text('Tidak dapat terhubung ke server'),
+          backgroundColor: Colors.red,
         ),
       );
     } finally {
@@ -144,231 +113,415 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  // =========================================================
+  // BUILD
+  // =========================================================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ==================================================
-                // LOGO
-                // ==================================================
+      resizeToAvoidBottomInset: true,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
 
-                Center(
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1976D2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Icon(
-                          Icons.school_rounded,
-                          color: Colors.white,
-                          size: 45,
-                        ),
+        // =====================================================
+        // BACKGROUND HIJAU
+        // =====================================================
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF00695C),
+              Color(0xFF00897B),
+              Color(0xFF4DB6AC),
+            ],
+          ),
+        ),
+
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 22,
+                        vertical: 12,
                       ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
 
-                      const SizedBox(height: 16),
-
-                      const Text(
-                        'MyEkskul',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1976D2),
-                        ),
-                      ),
-
-                      const SizedBox(height: 6),
-
-                      const Text(
-                        'Sistem Pemetaan Minat Ekstrakurikuler',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 45),
-
-                // ==================================================
-                // JUDUL
-                // ==================================================
-
-                const Text(
-                  'Selamat Datang!',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                const Text(
-                  'Silakan masuk ke akun kamu untuk melanjutkan.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-
-                const SizedBox(height: 28),
-
-                // ==================================================
-                // EMAIL
-                // ==================================================
-
-                const Text(
-                  'Email',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                TextField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan email',
-                    prefixIcon: const Icon(
-                      Icons.email_outlined,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // ==================================================
-                // PASSWORD
-                // ==================================================
-
-                const Text(
-                  'Password',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                TextField(
-                  controller: passwordController,
-                  obscureText: !isPasswordVisible,
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan password',
-                    prefixIcon: const Icon(
-                      Icons.lock_outline,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        isPasswordVisible
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          isPasswordVisible =
-                              !isPasswordVisible;
-                        });
-                      },
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 28),
-
-                // ==================================================
-                // TOMBOL MASUK
-                // ==================================================
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : login,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1976D2),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
+                          // =================================================
+                          // LOGO
+                          // =================================================
+                          Container(
+                            width: 68,
+                            height: 68,
+                            decoration: BoxDecoration(
                               color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 7),
+                                ),
+                              ],
                             ),
-                          )
-                        : const Text(
-                            'Masuk',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                            child: const Icon(
+                              Icons.school_rounded,
+                              size: 38,
+                              color: Color(0xFF00695C),
                             ),
                           ),
+
+                          const SizedBox(height: 10),
+
+                          // =================================================
+                          // NAMA APLIKASI
+                          // =================================================
+                          const Text(
+                            'MyEkskul',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 27,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+
+                          const SizedBox(height: 3),
+
+                          Text(
+                            'Temukan ekstrakurikuler yang sesuai denganmu',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 12,
+                            ),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // =================================================
+                          // LOGIN CARD
+                          // =================================================
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 18,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.18),
+                                  blurRadius: 25,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: [
+
+                                // =========================================
+                                // JUDUL
+                                // =========================================
+                                const Text(
+                                  'Selamat Datang 👋',
+                                  style: TextStyle(
+                                    fontSize: 21,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF263238),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 3),
+
+                                Text(
+                                  'Masuk untuk melanjutkan',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 14),
+
+                                // =========================================
+                                // EMAIL
+                                // =========================================
+                                const Text(
+                                  'Email',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF37474F),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 5),
+
+                                SizedBox(
+                                  height: 48,
+                                  child: TextField(
+                                    controller: emailController,
+                                    keyboardType:
+                                        TextInputType.emailAddress,
+                                    decoration: InputDecoration(
+                                      hintText: 'Masukkan email',
+                                      hintStyle: const TextStyle(
+                                        fontSize: 13,
+                                      ),
+                                      prefixIcon: const Icon(
+                                        Icons.email_outlined,
+                                        color: Color(0xFF00897B),
+                                        size: 20,
+                                      ),
+                                      filled: true,
+                                      fillColor: const Color(0xFFE0F2F1),
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(13),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      enabledBorder:
+                                          OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(13),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      focusedBorder:
+                                          OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(13),
+                                        borderSide: const BorderSide(
+                                          color: Color(0xFF00897B),
+                                          width: 1.3,
+                                        ),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 11),
+
+                                // =========================================
+                                // PASSWORD
+                                // =========================================
+                                const Text(
+                                  'Password',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF37474F),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 5),
+
+                                SizedBox(
+                                  height: 48,
+                                  child: TextField(
+                                    controller: passwordController,
+                                    obscureText: !isPasswordVisible,
+                                    decoration: InputDecoration(
+                                      hintText: 'Masukkan password',
+                                      hintStyle: const TextStyle(
+                                        fontSize: 13,
+                                      ),
+                                      prefixIcon: const Icon(
+                                        Icons.lock_outline_rounded,
+                                        color: Color(0xFF00897B),
+                                        size: 20,
+                                      ),
+                                      suffixIcon: IconButton(
+                                        padding: EdgeInsets.zero,
+                                        onPressed: () {
+                                          setState(() {
+                                            isPasswordVisible =
+                                                !isPasswordVisible;
+                                          });
+                                        },
+                                        icon: Icon(
+                                          isPasswordVisible
+                                              ? Icons.visibility_outlined
+                                              : Icons.visibility_off_outlined,
+                                          color: Colors.grey.shade600,
+                                          size: 19,
+                                        ),
+                                      ),
+                                      filled: true,
+                                      fillColor: const Color(0xFFE0F2F1),
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(13),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      enabledBorder:
+                                          OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(13),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      focusedBorder:
+                                          OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(13),
+                                        borderSide: const BorderSide(
+                                          color: Color(0xFF00897B),
+                                          width: 1.3,
+                                        ),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 16),
+
+                                // =========================================
+                                // BUTTON MASUK
+                                // =========================================
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 48,
+                                  child: ElevatedButton(
+                                    onPressed:
+                                        isLoading ? null : login,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          const Color(0xFF00695C),
+                                      foregroundColor: Colors.white,
+                                      disabledBackgroundColor:
+                                          const Color(0xFF80CBC4),
+                                      elevation: 3,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(13),
+                                      ),
+                                    ),
+                                    child: isLoading
+                                        ? const SizedBox(
+                                            width: 21,
+                                            height: 21,
+                                            child:
+                                                CircularProgressIndicator(
+                                              strokeWidth: 2.5,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : const Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                'Masuk',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight:
+                                                      FontWeight.bold,
+                                                ),
+                                              ),
+                                              SizedBox(width: 7),
+                                              Icon(
+                                                Icons
+                                                    .arrow_forward_rounded,
+                                                size: 18,
+                                              ),
+                                            ],
+                                          ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 12),
+
+                                // =========================================
+                                // REGISTER
+                                // =========================================
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Belum punya akun?',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+
+                                    const SizedBox(width: 4),
+
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const RegisterPage(),
+                                          ),
+                                        );
+                                      },
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets.zero,
+                                        minimumSize: Size.zero,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize
+                                                .shrinkWrap,
+                                      ),
+                                      child: const Text(
+                                        'Daftar sekarang',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF00695C),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          // =================================================
+                          // FOOTER
+                          // =================================================
+                          Text(
+                            '© MyEkskul • Temukan Potensimu',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.75),
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-
-                const SizedBox(height: 20),
-
-                // ==================================================
-                // REGISTER
-                // ==================================================
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Belum punya akun? ',
-                      style: TextStyle(
-                        color: Colors.grey,
-                      ),
-                    ),
-
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const RegisterPage(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        'Daftar',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1976D2),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
