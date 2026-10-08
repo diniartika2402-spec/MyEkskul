@@ -56,35 +56,41 @@ class _LoginPageState extends State<LoginPage> {
         },
       );
 
+      print('STATUS CODE: ${response.statusCode}');
+      print('RESPONSE SERVER: ${response.body}');
+
       final data = jsonDecode(response.body);
 
       if (!mounted) return;
 
       if (data['success'] == true) {
-        final int userId = int.parse(data['id'].toString());
-        final String nama = data['nama'].toString();
-        final String email = data['email'].toString();
-        final String role = data['role'].toString();
+  final userData = data['data'];
 
-        if (role == 'admin') {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AdminDashboardPage(),
-            ),
-          );
-        } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DashboardPage(
-                userId: userId,
-                nama: nama,
-                email: email,
-              ),
-            ),
-          );
-        }
+  final int userId = int.parse(userData['id'].toString());
+  final String nama = userData['nama'].toString();
+  final String email = userData['email'].toString();
+  final String role = userData['role'].toString();
+
+  if (role == 'admin') {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AdminDashboardPage(),
+      ),
+    );
+  } else {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DashboardPage(
+          userId: userId,
+          nama: nama,
+          email: email,
+        ),
+      ),
+    );
+  }
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -96,14 +102,17 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } catch (e) {
-      if (!mounted) return;
+  if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tidak dapat terhubung ke server'),
-          backgroundColor: Colors.red,
-        ),
-      );
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('Error: $e'),
+      backgroundColor: Colors.red,
+    ),
+  );
+
+  print('ERROR LOGIN: $e');
+
     } finally {
       if (mounted) {
         setState(() {
