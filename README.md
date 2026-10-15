@@ -1,61 +1,92 @@
-<<<<<<< HEAD
-# myekskul
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
 # MyEkskul
-<<<<<<< HEAD
-Aplikasi rekomendasi ekstrakurikuler berbasis Flutter
->>>>>>> 97085d810edad592109475b8cf44628213ee3b4a
-=======
 
-Aplikasi rekomendasi ekstrakurikuler berbasis Flutter.
+**Aplikasi Informasi dan Pengelolaan Ekstrakurikuler Sekolah**
 
-## Deskripsi
-MyEkskul membantu pengguna menemukan rekomendasi kegiatan ekstrakurikuler berdasarkan hasil pengisian kuesioner.
+## 📖 Deskripsi
 
-## Fitur
-- Login pengguna
-- Kuesioner minat dan bakat
-- Hasil rekomendasi ekstrakurikuler
-- Daftar dan detail ekstrakurikuler
-- Profil pengguna dan foto profil
+MyEkskul adalah aplikasi berbasis Flutter yang dikembangkan untuk membantu pengguna melihat informasi kegiatan ekstrakurikuler sekolah. Aplikasi ini menyediakan halaman daftar ekstrakurikuler, detail kegiatan, dan profil pengguna.
 
-## Teknologi
-- Flutter dan Dart
-- PHP
-- MySQL
-- XAMPP
+Aplikasi menggunakan backend PHP dan database MySQL untuk mendukung pengelolaan serta pengambilan data.
 
-## Cara Menjalankan
-1. Install Flutter dan Android Studio.
-2. Jalankan Apache dan MySQL melalui XAMPP.
-3. Siapkan database dan backend PHP MyEkskul.
-4. Sesuaikan konfigurasi URL API dengan lingkungan pengujian.
-5. Jalankan perintah berikut dari folder proyek:
+## ✨ Fitur
+
+- Menampilkan daftar ekstrakurikuler.
+- Mencari ekstrakurikuler.
+- Melihat detail informasi ekstrakurikuler.
+- Mengelola profil pengguna.
+- Memilih dan menghapus foto profil.
+- Mengisi dan menyimpan jawaban kuesioner.
+
+## 🛠️ Teknologi
+
+- **Flutter** — pengembangan antarmuka aplikasi.
+- **Dart** — bahasa pemrograman aplikasi.
+- **PHP** — backend/API.
+- **MySQL** — basis data.
+- **XAMPP** — lingkungan server lokal untuk pengembangan.
+
+## 📋 Persyaratan
+
+Pastikan perangkat pengembangan telah memiliki:
+
+- Flutter SDK dan Dart.
+- Android Studio atau editor yang mendukung Flutter.
+- XAMPP dengan Apache dan MySQL.
+- Emulator Android atau perangkat Android.
+
+## 🚀 Cara Menjalankan
+
+### 1. Clone repository
+
+```bash
+git clone https://github.com/diniartika2402-spec/MyEkskul.git
+cd MyEkskul
+```
+
+### 2. Pasang dependensi Flutter
 
 ```bash
 flutter pub get
+```
+
+### 3. Jalankan backend
+
+- Jalankan Apache dan MySQL melalui XAMPP.
+- Letakkan folder backend `myekskul_api` di direktori web server XAMPP, jika belum tersedia di sana.
+- Siapkan database MySQL sesuai konfigurasi backend.
+- Pastikan alamat endpoint API di aplikasi sesuai dengan lingkungan yang digunakan.
+
+Untuk Android Emulator, alamat server lokal komputer biasanya diakses melalui `http://10.0.2.2/`.
+
+### 4. Jalankan aplikasi
+
+Hubungkan perangkat Android atau nyalakan emulator, lalu jalankan:
+
+```bash
 flutter run
 ```
 
-## Pengembang
-Proyek ini dibuat untuk tugas Ujian Tengah Semester mata kuliah Pemrograman Mobile.
+## 📁 Struktur Proyek
 
-## Screenshot
-Tambahkan screenshot aplikasi pada bagian ini.
->>>>>>> origin/main
+```text
+MyEkskul/
+├── android/
+├── lib/
+│   └── pages/
+├── linux/
+├── macos/
+├── windows/
+├── pubspec.yaml
+└── README.md
+```
+
+## 👩‍💻 Pengembang
+
+- **Nama:** Dini Artrika Rahmawati
+- **NPM:** 2413025014
+- **Program Studi:** PENDIDIKAN TEKNOLOGI INFORMASI
+- **Mata Kuliah:** MOBILE PROGRAMMING
+
+## 📄 Lisensi
+
+Proyek ini dikembangkan untuk keperluan pembelajaran dan tugas akademik.
