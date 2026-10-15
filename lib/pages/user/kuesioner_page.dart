@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -18,18 +19,29 @@ class KuesionerPage extends StatefulWidget {
 }
 
 class _KuesionerPageState extends State<KuesionerPage> {
-  bool isLoading = true;
-  bool isSaving = false;
+  static const Color teal = Color(0xFF0F766E);
+  static const Color background = Color(0xFFF4F7F7);
 
-  String? errorMessage;
+  static const String baseUrl =
+      'http://10.0.2.2/myekskul_api';
 
-  List<dynamic> questions = [];
+  List<Map<String, dynamic>> questions = [];
 
-  // Menyimpan jawaban berdasarkan ID pertanyaan
+  // Key = ID pertanyaan, value = nilai jawaban 1 sampai 5.
   final Map<int, int> answers = {};
 
-  // Nomor pertanyaan yang sedang ditampilkan
   int currentIndex = 0;
+  bool isLoading = true;
+  bool isSaving = false;
+  String errorMessage = '';
+
+  final List<String> answerLabels = [
+    'Sangat tidak suka',
+    'Tidak suka',
+    'Netral',
+    'Suka',
+    'Sangat suka',
+  ];
 
   @override
   void initState() {
@@ -42,144 +54,127 @@ class _KuesionerPageState extends State<KuesionerPage> {
   // ============================================================
 
   Future<void> fetchQuestions() async {
+    if (mounted) {
+      setState(() {
+        isLoading = true;
+        errorMessage = '';
+      });
+    }
+
     try {
-      final response = await http.get(
-        Uri.parse(
-          'http://10.0.2.2/myekskul_api/pertanyaan/get.php',
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/pertanyaan/get.php'),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      final dynamic data = jsonDecode(response.body);
+
+      if (response.statusCode != 200 ||
+          data is! Map ||
+          data['success'] != true ||
+          data['data'] is! List) {
+        throw Exception(
+          data is Map
+              ? data['message'] ?? 'Pertanyaan gagal dimuat.'
+              : 'Format respons server tidak valid.',
+        );
+      }
+
+      final loadedQuestions =
+          List<Map<String, dynamic>>.from(
+        (data['data'] as List).map(
+          (item) => Map<String, dynamic>.from(item),
         ),
       );
 
-      final data = jsonDecode(response.body);
-
       if (!mounted) return;
 
-      if (data['success'] == true) {
-        setState(() {
-          questions = data['data'];
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          errorMessage = 'Gagal mengambil pertanyaan';
-          isLoading = false;
-        });
-      }
+      setState(() {
+        questions = loadedQuestions;
+        isLoading = false;
+      });
     } catch (e) {
       if (!mounted) return;
 
       setState(() {
-        errorMessage = 'Tidak dapat terhubung ke server';
         isLoading = false;
+        errorMessage =
+            'Gagal memuat pertanyaan. Periksa koneksi server.';
       });
+
+      debugPrint('Error mengambil pertanyaan: $e');
     }
   }
 
   // ============================================================
-  // PINDAH KE PERTANYAAN BERIKUTNYA
-  // ============================================================
-
-  Future<void> nextQuestion() async {
-    if (questions.isEmpty) return;
-
-    final question = questions[currentIndex];
-
-    final int questionId = int.parse(
-      question['id'].toString(),
-    );
-
-    // Pastikan pertanyaan sudah dijawab
-    if (!answers.containsKey(questionId)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Silakan pilih jawaban terlebih dahulu.',
-          ),
-        ),
-      );
-      return;
-    }
-
-    // Kalau belum pertanyaan terakhir
-    if (currentIndex < questions.length - 1) {
-      setState(() {
-        currentIndex++;
-      });
-
-      return;
-    }
-
-    // Kalau sudah pertanyaan terakhir
-    await saveAnswers();
-  }
-
-  // ============================================================
-  // KEMBALI KE PERTANYAAN SEBELUMNYA
-  // ============================================================
-
-  void previousQuestion() {
-    if (currentIndex > 0) {
-      setState(() {
-        currentIndex--;
-      });
-    }
-  }
-
-  // ============================================================
-  // MENYIMPAN SEMUA JAWABAN
+  // MENYIMPAN JAWABAN
   // ============================================================
 
   Future<void> saveAnswers() async {
-    // Pastikan semua pertanyaan sudah dijawab
-    if (answers.length != questions.length) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Silakan jawab semua pertanyaan terlebih dahulu.',
-          ),
-        ),
+    if (widget.userId <= 0) {
+      _showMessage(
+        'ID pengguna tidak valid. Silakan login kembali.',
+      );
+      debugPrint('User ID tidak valid: ${widget.userId}');
+      return;
+    }
+
+    if (answers.length < questions.length) {
+      _showMessage(
+        'Jawab semua pertanyaan terlebih dahulu.',
       );
       return;
     }
 
-    setState(() {
-      isSaving = true;
-    });
+    setState(() => isSaving = true);
 
     try {
       for (final question in questions) {
-        final int questionId = int.parse(
-          question['id'].toString(),
-        );
+        final int questionId =
+            int.parse(question['id'].toString());
 
-        final int nilai = answers[questionId]!;
+        final int? answerValue = answers[questionId];
 
-        final response = await http.post(
-          Uri.parse(
-            'http://10.0.2.2/myekskul_api/pertanyaan/save.php',
-          ),
-          body: {
-            'user_id': widget.userId.toString(),
-            'pertanyaan_id': questionId.toString(),
-            'nilai': nilai.toString(),
-          },
-        );
-
-        final data = jsonDecode(response.body);
-
-        if (data['success'] != true) {
+        if (answerValue == null) {
           throw Exception(
-            data['message'] ?? 'Gagal menyimpan jawaban',
+            'Jawaban pertanyaan $questionId belum dipilih.',
           );
+        }
+
+        debugPrint(
+          'Menyimpan: user_id=${widget.userId}, '
+          'pertanyaan_id=$questionId, nilai=$answerValue',
+        );
+
+        // Kirim sebagai form agar dapat dibaca oleh $_POST di PHP.
+        final response = await http
+            .post(
+              Uri.parse('$baseUrl/pertanyaan/save.php'),
+              body: {
+                'user_id': widget.userId.toString(),
+                'pertanyaan_id': questionId.toString(),
+                'nilai': answerValue.toString(),
+              },
+            )
+            .timeout(const Duration(seconds: 15));
+
+        final dynamic data = jsonDecode(response.body);
+
+        if (response.statusCode != 200 ||
+            data is! Map ||
+            data['success'] != true) {
+          final message = data is Map
+              ? data['message'] ?? 'Jawaban gagal disimpan.'
+              : 'Respons server tidak valid.';
+
+          throw Exception(message);
         }
       }
 
       if (!mounted) return;
 
-      setState(() {
-        isSaving = false;
-      });
-
-      // Masuk ke halaman hasil rekomendasi
+      // Semua jawaban berhasil disimpan.
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -189,323 +184,411 @@ class _KuesionerPageState extends State<KuesionerPage> {
         ),
       );
     } catch (e) {
-      if (!mounted) return;
+      debugPrint('Error menyimpan jawaban: $e');
 
-      setState(() {
-        isSaving = false;
-      });
+      if (mounted) {
+        _showMessage('Gagal menyimpan jawaban: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isSaving = false);
+      }
+    }
+  }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Gagal menyimpan jawaban: $e',
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  // ============================================================
+  // NAVIGASI PERTANYAAN
+  // ============================================================
+
+  void nextQuestion() {
+    final question = questions[currentIndex];
+    final int questionId =
+        int.parse(question['id'].toString());
+
+    if (!answers.containsKey(questionId)) {
+      _showMessage('Silakan pilih salah satu jawaban.');
+      return;
+    }
+
+    if (currentIndex < questions.length - 1) {
+      setState(() => currentIndex++);
+    } else {
+      saveAnswers();
+    }
+  }
+
+  void previousQuestion() {
+    if (currentIndex > 0) {
+      setState(() => currentIndex--);
     }
   }
 
   // ============================================================
-  // TAMPILAN
+  // TAMPILAN UTAMA
   // ============================================================
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: background,
       appBar: AppBar(
-        title: const Text('Kuesioner'),
+        toolbarHeight: 48,
+        backgroundColor: teal,
+        foregroundColor: Colors.white,
+        elevation: 0,
         centerTitle: true,
+        title: const Text(
+          'Kuesioner Minat',
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
       ),
-      body: _buildBody(),
+      body: SafeArea(
+        child: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: teal,
+                ),
+              )
+            : errorMessage.isNotEmpty
+                ? _buildError()
+                : questions.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'Belum ada pertanyaan tersedia.',
+                        ),
+                      )
+                    : _buildQuestion(),
+      ),
     );
   }
 
-  Widget _buildBody() {
-    if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
+  // ============================================================
+  // TAMPILAN ERROR
+  // ============================================================
 
-    if (errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text(
-            errorMessage!,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.red,
+  Widget _buildError() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.wifi_off_rounded,
+              size: 40,
+              color: teal,
             ),
-          ),
+            const SizedBox(height: 10),
+            Text(
+              errorMessage,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: fetchQuestions,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: teal,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Coba Lagi'),
+            ),
+          ],
         ),
-      );
-    }
+      ),
+    );
+  }
 
-    if (questions.isEmpty) {
-      return const Center(
-        child: Text(
-          'Belum ada pertanyaan.',
-          style: TextStyle(
-            fontSize: 18,
-          ),
-        ),
-      );
-    }
+  // ============================================================
+  // TAMPILAN PERTANYAAN RINGKAS
+  // ============================================================
 
+  Widget _buildQuestion() {
     final question = questions[currentIndex];
 
-    final int questionId = int.parse(
-      question['id'].toString(),
-    );
+    final int questionId =
+        int.parse(question['id'].toString());
 
-    final bool isLastQuestion =
-        currentIndex == questions.length - 1;
+    final int? selectedValue = answers[questionId];
 
     final double progress =
         (currentIndex + 1) / questions.length;
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(13, 10, 13, 9),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ======================================================
-          // PROGRESS
-          // ======================================================
+          // Progres pertanyaan.
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Pertanyaan ${currentIndex + 1} '
+                  'dari ${questions.length}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Text(
+                '${(progress * 100).round()}%',
+                style: const TextStyle(
+                  color: teal,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
 
-          Text(
-            'Pertanyaan ${currentIndex + 1} dari ${questions.length}',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1976D2),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 5,
+              backgroundColor: const Color(0xFFDDE8E7),
+              color: teal,
             ),
           ),
 
           const SizedBox(height: 10),
 
-          LinearProgressIndicator(
-            value: progress,
-            minHeight: 8,
-            borderRadius: BorderRadius.circular(10),
-            backgroundColor: Colors.grey.shade200,
-            valueColor: const AlwaysStoppedAnimation<Color>(
-              Color(0xFF1976D2),
+          // Kartu pertanyaan.
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: const Color(0xFFE1EAE9),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE3F3F0),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '${question['kategori'] ?? 'Umum'}',
+                    style: const TextStyle(
+                      color: teal,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 7),
+                Text(
+                  '${question['pertanyaan'] ?? ''}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    height: 1.25,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF203331),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Pilih satu jawaban yang paling sesuai.',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.black54,
+                  ),
+                ),
+              ],
             ),
           ),
 
-          const SizedBox(height: 30),
+          const SizedBox(height: 9),
 
-          // ======================================================
-          // KARTU PERTANYAAN
-          // ======================================================
+          const Text(
+            'Pilihan jawaban',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
 
-          Expanded(
-            child: SingleChildScrollView(
-              child: Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+          const SizedBox(height: 6),
+
+          // Kelima pilihan jawaban tampil sekaligus.
+          ...List.generate(5, (index) {
+            final int value = index + 1;
+            final bool isSelected = selectedValue == value;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    answers[questionId] = value;
+                  });
+                },
+                borderRadius: BorderRadius.circular(10),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  height: 38,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? const Color(0xFFE1F3EF)
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isSelected
+                          ? teal
+                          : const Color(0xFFDCE5E4),
+                      width: isSelected ? 1.5 : 1,
+                    ),
+                  ),
+                  child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 7,
-                        ),
+                        width: 23,
+                        height: 23,
+                        alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1976D2)
-                              .withOpacity(0.1),
-                          borderRadius:
-                              BorderRadius.circular(20),
+                          shape: BoxShape.circle,
+                          color: isSelected
+                              ? teal
+                              : const Color(0xFFF0F4F3),
                         ),
+                        child: isSelected
+                            ? const Icon(
+                                Icons.check,
+                                size: 14,
+                                color: Colors.white,
+                              )
+                            : Text(
+                                '$value',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF536360),
+                                ),
+                              ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
                         child: Text(
-                          question['kategori']?.toString() ??
-                              '-',
-                          style: const TextStyle(
-                            color: Color(0xFF1976D2),
-                            fontWeight: FontWeight.bold,
+                          answerLabels[index],
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: isSelected
+                                ? teal
+                                : const Color(0xFF344441),
                           ),
                         ),
                       ),
-
-                      const SizedBox(height: 25),
-
-                      Text(
-                        question['pertanyaan'].toString(),
-                        style: const TextStyle(
-                          fontSize: 21,
-                          fontWeight: FontWeight.bold,
-                          height: 1.4,
+                      if (isSelected)
+                        const Icon(
+                          Icons.check_circle,
+                          color: teal,
+                          size: 17,
                         ),
-                      ),
-
-                      const SizedBox(height: 30),
-
-                      const Text(
-                        'Seberapa sesuai dengan kamu?',
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      _buildAnswerOption(
-                        questionId: questionId,
-                        value: 1,
-                        text: 'Sangat Tidak Suka',
-                      ),
-
-                      _buildAnswerOption(
-                        questionId: questionId,
-                        value: 2,
-                        text: 'Tidak Suka',
-                      ),
-
-                      _buildAnswerOption(
-                        questionId: questionId,
-                        value: 3,
-                        text: 'Netral',
-                      ),
-
-                      _buildAnswerOption(
-                        questionId: questionId,
-                        value: 4,
-                        text: 'Suka',
-                      ),
-
-                      _buildAnswerOption(
-                        questionId: questionId,
-                        value: 5,
-                        text: 'Sangat Suka',
-                      ),
                     ],
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          }),
 
-          const SizedBox(height: 15),
+          const Spacer(),
 
-          // ======================================================
-          // TOMBOL NAVIGASI
-          // ======================================================
-
+          // Tombol navigasi.
           Row(
             children: [
-              if (currentIndex > 0)
+              if (currentIndex > 0) ...[
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: isSaving
-                        ? null
-                        : previousQuestion,
+                    onPressed:
+                        isSaving ? null : previousQuestion,
                     style: OutlinedButton.styleFrom(
-                      minimumSize:
-                          const Size(double.infinity, 52),
+                      foregroundColor: teal,
+                      minimumSize: const Size(0, 39),
+                      padding: EdgeInsets.zero,
+                      side: const BorderSide(color: teal),
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: const Text(
                       'Kembali',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 12),
                     ),
                   ),
                 ),
-
-              if (currentIndex > 0)
-                const SizedBox(width: 12),
-
+                const SizedBox(width: 8),
+              ],
               Expanded(
+                flex: 2,
                 child: ElevatedButton(
-                  onPressed: isSaving
-                      ? null
-                      : nextQuestion,
+                  onPressed: isSaving ? null : nextQuestion,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFF1976D2),
+                    backgroundColor: teal,
                     foregroundColor: Colors.white,
-                    minimumSize:
-                        const Size(double.infinity, 52),
+                    minimumSize: const Size(0, 39),
+                    padding: EdgeInsets.zero,
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: isSaving
                       ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child:
-                              CircularProgressIndicator(
+                          width: 17,
+                          height: 17,
+                          child: CircularProgressIndicator(
                             strokeWidth: 2,
                             color: Colors.white,
                           ),
                         )
                       : Text(
-                          isLastQuestion
+                          currentIndex == questions.length - 1
                               ? 'Selesai'
-                              : 'Lanjut',
+                              : 'Lanjutkan',
                           style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                 ),
               ),
             ],
           ),
-
-          const SizedBox(height: 10),
         ],
       ),
-    );
-  }
-
-  // ============================================================
-  // PILIHAN JAWABAN
-  // ============================================================
-
-  Widget _buildAnswerOption({
-    required int questionId,
-    required int value,
-    required String text,
-  }) {
-    return RadioListTile<int>(
-      value: value,
-      groupValue: answers[questionId],
-      title: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 15,
-        ),
-      ),
-      contentPadding: EdgeInsets.zero,
-      dense: true,
-      activeColor: const Color(0xFF1976D2),
-      onChanged: (selectedValue) {
-        if (selectedValue == null) return;
-
-        setState(() {
-          answers[questionId] = selectedValue;
-        });
-      },
     );
   }
 }
