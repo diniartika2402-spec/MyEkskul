@@ -544,7 +544,7 @@ class _KuesionerPageState extends State<KuesionerPage> {
                       ),
                     ),
                     child: const Text(
-                      'Kembali',
+                      'sebelumnya',
                       style: TextStyle(fontSize: 12),
                     ),
                   ),
