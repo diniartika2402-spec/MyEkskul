@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # myekskul
 
 A new Flutter project.
@@ -15,3 +16,7 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# MyEkskul
+Aplikasi rekomendasi ekstrakurikuler berbasis Flutter
+>>>>>>> 97085d810edad592109475b8cf44628213ee3b4a
