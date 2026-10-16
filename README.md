@@ -174,3 +174,44 @@ MyEkskul masih dikembangkan secara bertahap. Penyempurnaan fitur pemetaan minat,
 ## 📄 Lisensi
 
 Proyek ini dikembangkan untuk keperluan pembelajaran dan tugas akademik.
+
+## Screenshot Aplikasi MyEkskul
+
+### 1. Halaman Login
+![Login](screenshots/login.png)
+
+### 2. Halaman Registrasi
+![Registrasi](screenshots/registrasi.png)
+
+### 3. Dashboard Siswa
+![Dashboard](screenshots/dashboard.png)
+
+### 4. Halaman Profil
+![Profil](screenshots/profil.png)
+
+### 5. Halaman Kuesioner
+![Kuesioner](screenshots/kuesioner.png)
+
+### 6. Halaman Kuis
+![Kuis](screenshots/kuis.png)
+
+### 7. Hasil Pemetaan dan Rekomendasi
+![Rekomendasi](screenshots/rekomendasi.png)
+
+### 8. Daftar Ekstrakurikuler
+![Ekstrakurikuler](screenshots/ekskul.png)
+
+### 9. Detail Ekstrakurikuler
+![Detail Ekstrakurikuler](screenshots/detail_ekskul.png)
+
+### 10. Dashboard Admin
+![Dashboard Admin](screenshots/dashboard_admin.png)
+
+### 11. Kelola Ekstrakurikuler
+![Kelola Ekstrakurikuler](screenshots/kelola_ekskul.png)
+
+### 12. Kelola Pertanyaan
+![Kelola Pertanyaan](screenshots/kelola_pertanyaan.png)
+
+### 13. Halaman Tentang
+![Tentang](screenshots/tentang.png)
