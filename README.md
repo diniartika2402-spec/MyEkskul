@@ -72,8 +72,8 @@ Contoh alamat dasar API:
 
 ```text
 http://10.0.2.2/myekskul_api/
+http://localhost/myekskul_api/
 ```
-
 
 ### 5. Jalankan aplikasi
 
@@ -98,9 +98,9 @@ flutter run
 ![Halaman Profil](screenshots/profil.png)
 
 ### 5. Halaman Kuesioner
-![Halaman Kuesioner](screenshots/kuesioner.png)
+![Halaman Kuesioner](screenshots/kuis.png)
 
-### 6. Halaman Kuis
+### 6. Halaman kuis
 ![Halaman Kuis](screenshots/kuis.png)
 
 ### 7. Hasil Pemetaan dan Rekomendasi
