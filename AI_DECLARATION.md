@@ -1,106 +1,66 @@
-# AI DECLARATION
+# AI Usage Declaration — MyEkskul
 
-## 1. Identitas Pengembang
+## 1. Tujuan Penggunaan AI
 
-- **Nama:** Dini Artika Rahmawati
-- **NPM:** 2413025014
-- **Program Studi:** Pendidikan Teknologi Informasi
-- **Universitas:** Universitas Lampung
-- **Nama Aplikasi:** MyEkskul
-- **Judul Proyek:** Sistem Pemetaan Minat dan Rekomendasi Ekstrakurikuler Siswa Berbasis Mobile
+Dalam pengembangan aplikasi MyEkskul, saya menggunakan bantuan AI untuk membantu proses penulisan kode, implementasi fitur, dan pemecahan masalah teknis. Penggunaan AI dilakukan berdasarkan kebutuhan fitur dan alur aplikasi yang telah saya tentukan.
 
-## 2. Alat AI yang Digunakan
+## 2. Daftar Alat AI
 
-Alat AI yang digunakan dalam proses pengembangan proyek ini adalah **ChatGPT**.
+- **ChatGPT:** Membantu penyusunan kode program, penjelasan kode, dan penelusuran kesalahan selama pengembangan aplikasi.
 
-ChatGPT dimanfaatkan sebagai asisten untuk membantu memahami permasalahan pemrograman, memberikan saran implementasi fitur Flutter, membantu menyelesaikan kendala Git dan GitHub, serta menyusun dokumentasi proyek.
 
-## 3. Bagian yang Dibantu AI dan Dikerjakan Pengembang
+## 3. Pembagian Peran dan Kontribusi
 
-### A. Pengembangan Antarmuka dan Fitur Flutter
+### Kontribusi Saya
 
-**Bantuan AI:**
-- Memberikan saran perbaikan tampilan halaman aplikasi.
-- Membantu memahami implementasi fitur pemilihan foto profil.
-- Memberikan arahan terkait penggunaan package Flutter yang diperlukan.
+- Menentukan kebutuhan dan tujuan aplikasi MyEkskul.
+- Menentukan alur penggunaan aplikasi, mulai dari login dan registrasi, pengisian kuesioner minat, hingga penampilan hasil pemetaan dan rekomendasi ekstrakurikuler.
+- Menentukan fitur yang dibutuhkan berdasarkan tujuan proyek.
+- Melakukan pengujian aplikasi dan mengidentifikasi masalah yang muncul selama proses pengembangan.
 
-**Pekerjaan dan tanggung jawab pengembang:**
-- Mengintegrasikan saran ke dalam struktur proyek MyEkskul.
-- Menyesuaikan kode dengan kebutuhan aplikasi.
-- Menjalankan dan memeriksa hasil implementasi.
-- Bertanggung jawab atas kode akhir yang digunakan.
+### Kontribusi AI
 
-### B. Penyelesaian Kendala Git dan GitHub
+- Membantu menghasilkan kode program untuk implementasi fitur aplikasi.
+- Membantu menyusun antarmuka dan logika pemrosesan data.
+- Membantu memberikan penjelasan serta saran untuk mengatasi kesalahan program.
 
-**Bantuan AI:**
-- Menjelaskan fungsi perintah Git.
-- Membantu memahami konflik pada file README.md.
-- Memberikan panduan untuk menyelesaikan proses rebase dan mengirim perubahan ke GitHub.
+Sebagian besar kode program dibuat dengan bantuan AI. Oleh karena itu, saya tidak mengklaim kode yang dihasilkan AI sebagai kode yang sepenuhnya saya tulis sendiri. Saya bertanggung jawab untuk memahami alur aplikasi, menguji hasil implementasi, dan menjelaskan kontribusi AI secara transparan.
 
-**Pekerjaan dan tanggung jawab pengembang:**
-- Menjalankan perintah Git pada terminal.
-- Memeriksa perubahan file.
-- Menyelesaikan konflik dan memastikan hasil akhir tersimpan di repositori.
+## 4. Studi Kasus Prompting
 
-## 4. Contoh Prompt yang Digunakan
+### Studi Kasus 1 — Mengatasi Koneksi ke Server
 
-### Studi Kasus 1: Fitur Foto Profil
+**Kebutuhan:** Mengidentifikasi penyebab aplikasi tidak dapat terhubung ke server API.
 
-**Prompt:**
+**Prompt yang digunakan:**
 
-"Bantu perbaiki halaman profil Flutter agar pengguna dapat memilih foto profil dari galeri, menampilkan foto yang dipilih, dan menghapus foto profil jika diperlukan."
+> Apa penyebab aplikasi Flutter tidak terhubung ke server? Bantu periksa kemungkinan kesalahan pada alamat URL API dan konfigurasi koneksi.
 
-**Hasil awal dari AI:**
+**Hasil dan evaluasi:**
 
-AI memberikan arahan untuk menggunakan package seperti `image_picker` untuk memilih gambar dan `path_provider` untuk membantu pengelolaan penyimpanan lokal.
+AI membantu menelusuri kemungkinan penyebab masalah koneksi. Dalam proses pengujian, saya menemukan bahwa masalah yang terjadi berkaitan dengan kesalahan penulisan alamat URL API, kemudian saya memperbaikinya.
 
-**Penyesuaian oleh pengembang:**
+**Penyesuaian dan pembelajaran:**
 
-Implementasi disesuaikan dengan struktur halaman profil MyEkskul dan kebutuhan penyimpanan foto pengguna. Hasilnya perlu diuji untuk memastikan foto dapat dipilih, ditampilkan, dan dihapus sesuai fungsi yang direncanakan.
+Saya menyadari bahwa saran AI perlu diverifikasi melalui pemeriksaan kode dan pengujian aplikasi. Perbaikan dilakukan berdasarkan masalah yang ditemukan pada proyek, bukan hanya dengan menerima saran AI secara langsung.
 
-### Studi Kasus 2: Konflik README di GitHub
+### Studi Kasus 2 — Menampilkan Hasil Rekomendasi
 
-**Prompt:**
+**Kebutuhan:** Mengambil data rekomendasi dari API dan menampilkannya pada aplikasi Flutter.
 
-"Bantu saya menyelesaikan konflik Git pada README.md dengan aman agar perubahan lokal dan perubahan di GitHub dapat digabungkan tanpa kehilangan isi dokumentasi."
+**prompt:**
 
-**Hasil awal dari AI:**
+> Bantu buat kode Flutter untuk mengambil data rekomendasi ekstrakurikuler dari API PHP menggunakan user_id, menangani status loading dan error, serta menampilkan hasil rekomendasi dalam bentuk daftar.
 
-AI menjelaskan cara memeriksa status Git, mengenali penanda konflik, menyelesaikan isi file, dan melanjutkan proses rebase.
+**Hasil dan evaluasi:**
 
-**Penyesuaian oleh pengembang:**
+AI membantu menghasilkan kode untuk proses pengambilan data dan tampilan rekomendasi. Salah satu contoh implementasinya terdapat pada file `hasil_page.dart`, khususnya fungsi `fetchRekomendasi` yang mengambil data dari endpoint rekomendasi.
 
-Pengembang memeriksa isi README.md, menyusun dokumentasi akhir, dan menjalankan perintah Git sesuai kondisi repositori.
+**Penyesuaian dan pembelajaran:**
 
-*Catatan: contoh prompt di atas merupakan rangkuman prompt. Jika diperlukan sebagai kutipan persis, sesuaikan dengan prompt yang benar-benar dikirim selama proses pengembangan.*
+Kode perlu disesuaikan dengan alamat API, struktur respons JSON, dan endpoint yang digunakan oleh backend MyEkskul. Pengujian dilakukan untuk memastikan data rekomendasi dapat diterima dan ditampilkan sesuai hasil respons server.
 
-## 5. Evaluasi Kritis terhadap Penggunaan AI
 
-AI membantu mempercepat pemahaman masalah teknis dan memberikan alternatif solusi. Namun, hasil AI tidak selalu dapat langsung digunakan tanpa pemeriksaan.
+## 5. Kesimpulan
 
-Beberapa hal yang perlu diperhatikan:
-- Kode yang dihasilkan AI harus disesuaikan dengan struktur proyek.
-- Dependensi dan kompatibilitas package perlu diperiksa.
-- Perintah Git harus dijalankan sesuai kondisi repositori.
-- Fitur harus diuji secara langsung agar sesuai dengan kebutuhan aplikasi.
-- Dokumentasi harus menggambarkan fitur yang benar-benar tersedia, bukan hanya fitur yang direncanakan.
-
-Dengan demikian, AI digunakan sebagai alat bantu, sedangkan keputusan implementasi dan tanggung jawab terhadap hasil akhir tetap berada pada pengembang.
-
-## 6. Rencana Pengembangan Selanjutnya
-
-Rencana pengembangan MyEkskul meliputi:
-1. Menyempurnakan fitur pemetaan minat siswa.
-2. Menyempurnakan fitur dan halaman admin
-3. Mengembangkan rekomendasi ekstrakurikuler berdasarkan minat siswa.
-4. Menyempurnakan integrasi aplikasi Flutter dengan backend PHP dan database MySQL.
-5. Melakukan pengujian fungsi dan memperbaiki kesalahan yang ditemukan.
-6. Memperbarui dokumentasi serta menambahkan screenshot aplikasi.
-
-Rencana tersebut akan dilaksanakan secara bertahap berdasarkan kondisi implementasi dan hasil pengujian.
-
-## 7. Pernyataan Integritas Akademik
-
-Saya menyatakan bahwa AI digunakan sebagai alat bantu dalam proses pembelajaran dan pengembangan proyek. Saya bertanggung jawab untuk memeriksa, memahami, menguji, dan menyesuaikan setiap hasil bantuan AI yang digunakan dalam proyek MyEkskul.
-
-Dokumen ini disusun untuk menjelaskan penggunaan AI secara transparan dalam proses pengembangan aplikasi.
+AI digunakan sebagai alat bantu dalam proses pengembangan aplikasi MyEkskul, bukan sebagai pengganti evaluasi dan pengujian. Saya berupaya menggunakan AI secara transparan dengan membedakan kontribusi dalam perancangan kebutuhan aplikasi dari kode program yang dihasilkan dengan bantuan AI.
