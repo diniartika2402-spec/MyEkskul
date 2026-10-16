@@ -16,11 +16,11 @@ MyEkskul dikembangkan menggunakan Flutter dan Dart untuk aplikasi mobile, PHP un
 - Melihat detail ekstrakurikuler.
 - Mengisi kuesioner pemetaan minat.
 - Menampilkan hasil pemetaan minat dan rekomendasi ekstrakurikuler.
+- Mendaftar ke Ekstrakulikuler
 - Melihat dan mengelola profil pengguna.
 - Memilih foto profil dari galeri perangkat.
 - Menyediakan halaman Admin untuk pengelolaan data sesuai fitur yang tersedia.
 
-*Catatan: fitur di atas perlu disesuaikan dengan hasil pengujian aplikasi. Jangan mencantumkan fitur yang belum berfungsi.*
 
 ## 🛠️ Teknologi yang Digunakan
 
@@ -74,7 +74,6 @@ Contoh alamat dasar API:
 http://10.0.2.2/myekskul_api/
 ```
 
-Sesuaikan alamat tersebut dengan lokasi backend dan konfigurasi yang digunakan dalam kode proyek.
 
 ### 5. Jalankan aplikasi
 
