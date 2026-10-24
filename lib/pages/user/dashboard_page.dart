@@ -5,6 +5,7 @@ import 'hasil_page.dart';
 import 'ekstrakurikuler_page.dart';
 import 'profile_page.dart';
 import 'tentang_page.dart';
+import '../auth/login_page.dart';
 
 class DashboardPage extends StatelessWidget {
   final int userId;
@@ -75,6 +76,49 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
+  Future<void> _logout(BuildContext context) async {
+  final konfirmasi = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      title: const Text('Konfirmasi Logout'),
+      content: const Text(
+        'Apakah kamu yakin ingin keluar dari akun MyEkskul?',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(dialogContext, false);
+          },
+          child: const Text('Batal'),
+        ),
+        ElevatedButton.icon(
+          onPressed: () {
+            Navigator.pop(dialogContext, true);
+          },
+          icon: const Icon(Icons.logout_rounded, size: 18),
+          label: const Text('Ya, Logout'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFDC2626),
+            foregroundColor: Colors.white,
+          ),
+        ),
+      ],
+    ),
+  );
+
+  if (konfirmasi != true || !context.mounted) return;
+
+  Navigator.of(context).pushAndRemoveUntil(
+    MaterialPageRoute(
+      builder: (_) => const LoginPage(),
+    ),
+    (route) => false,
+  );
+}
+
   // =========================================================
   // BUILD
   // =========================================================
@@ -143,40 +187,63 @@ class DashboardPage extends StatelessWidget {
                           ),
                         ),
 
-                        // TOMBOL PROFILE
-                        Material(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
+                    
 
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(14),
+PopupMenuButton<String>(
+  tooltip: 'Menu akun',
+  icon: const Icon(
+    Icons.person_outline_rounded,
+    color: Color(0xFF334155),
+  ),
+  style: IconButton.styleFrom(
+    backgroundColor: Colors.white,
+    side: const BorderSide(
+      color: Color(0xFFE5EAF1),
+    ),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(14),
+    ),
+    fixedSize: const Size(46, 46),
+  ),
+  onSelected: (value) {
+    if (value == 'profile') {
+      _openProfile(context);
+    } else if (value == 'logout') {
+      _logout(context);
+    }
+  },
+  itemBuilder: (context) => [
+    const PopupMenuItem<String>(
+      value: 'profile',
+      child: ListTile(
+        leading: Icon(Icons.person_outline_rounded),
+        title: Text('Profil Saya'),
+        contentPadding: EdgeInsets.zero,
+      ),
+    ),
+    const PopupMenuItem<String>(
+      value: 'logout',
+      child: ListTile(
+        leading: Icon(
+          Icons.logout_rounded,
+          color: Color(0xFFDC2626),
+        ),
+        title: Text(
+          'Logout',
+          style: TextStyle(color: Color(0xFFDC2626)),
+        ),
+        contentPadding: EdgeInsets.zero,
+      ),
+    ),
+  ],
+), // tutup PopupMenuButton
+      ],
+    ), // tutup Row
 
-                            onTap: () {
-                              _openProfile(context);
-                            },
+const SizedBox(height: 22),
 
-                            child: Container(
-                              width: 46,
-                              height: 46,
 
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: const Color(0xFFE5EAF1),
-                                ),
-                              ),
 
-                              child: const Icon(
-                                Icons.person_outline_rounded,
-                                color: Color(0xFF334155),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 22),
 
                     // =====================================================
                     // SAPAAN
