@@ -1,144 +1,186 @@
+
 import 'package:flutter/material.dart';
 
 class AdminProfilePage extends StatelessWidget {
   const AdminProfilePage({super.key});
 
+  static const Color primary = Color(0xFF0F766E);
+  static const Color secondary = Color(0xFF14A098);
+  static const Color background = Color(0xFFF5F7FA);
+  static const Color textColor = Color(0xFF172033);
+  static const Color muted = Color(0xFF64748B);
+  static const Color softTeal = Color(0xFFE0F2F1);
+  static const Color border = Color(0xFFE7EBF1);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: background,
       appBar: AppBar(
-        title: const Text('Profil Admin'),
+        backgroundColor: Colors.white,
+        foregroundColor: textColor,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
         centerTitle: true,
+        toolbarHeight: 54,
+        title: const Text(
+          'Profil Admin',
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double height = constraints.maxHeight;
+            final bool compact = height < 620;
 
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: const Color(0xFFE3F2FD),
-              child: const Icon(
-                Icons.admin_panel_settings_outlined,
-                size: 55,
-                color: Color(0xFF1976D2),
+            return Padding(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                compact ? 8 : 14,
+                16,
+                compact ? 8 : 14,
               ),
-            ),
-
-            const SizedBox(height: 15),
-
-            const Text(
-              'Admin MyEkskul',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 5),
-
-            const Text(
-              'Administrator',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            _infoCard(
-              icon: Icons.person_outline,
-              title: 'Nama',
-              value: 'Admin MyEkskul',
-            ),
-
-            _infoCard(
-              icon: Icons.email_outlined,
-              title: 'Email',
-              value: 'admin@myekskul.com',
-            ),
-
-            _infoCard(
-              icon: Icons.admin_panel_settings_outlined,
-              title: 'Role',
-              value: 'Administrator',
-            ),
-
-            _infoCard(
-              icon: Icons.school_outlined,
-              title: 'Sistem',
-              value: 'MyEkskul',
-            ),
-
-            const SizedBox(height: 25),
-
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: const Text('Logout'),
-                        content: const Text(
-                          'Apakah kamu yakin ingin keluar dari akun admin?',
+              child: Column(
+                children: [
+                  // HEADER PROFIL
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(
+                      vertical: compact ? 10 : 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: border),
+                    ),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: compact ? 29 : 35,
+                          backgroundColor: softTeal,
+                          child: Icon(
+                            Icons.admin_panel_settings_rounded,
+                            size: compact ? 34 : 40,
+                            color: primary,
+                          ),
                         ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Batal'),
+                        SizedBox(height: compact ? 6 : 9),
+                        const Text(
+                          'Admin MyEkskul',
+                          style: TextStyle(
+                            fontSize: 19,
+                            fontWeight: FontWeight.w800,
+                            color: textColor,
                           ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Logout berhasil'),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
+                        ),
+                        const SizedBox(height: 5),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: softTeal,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'Administrator',
+                            style: TextStyle(
+                              color: primary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
                             ),
-                            child: const Text('Logout'),
                           ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.logout),
-                    SizedBox(width: 8),
-                    Text(
-                      'Logout',
+
+                  SizedBox(height: compact ? 12 : 18),
+
+                  // JUDUL INFORMASI
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Informasi Akun',
                       style: TextStyle(
+                        color: textColor,
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+
+                  SizedBox(height: compact ? 8 : 12),
+
+                  // INFORMASI AKUN
+                  _infoCard(
+                    icon: Icons.person_outline_rounded,
+                    title: 'Nama Lengkap',
+                    value: 'Admin MyEkskul',
+                    compact: compact,
+                  ),
+
+                  _infoCard(
+                    icon: Icons.email_outlined,
+                    title: 'Email',
+                    value: 'admin@myekskul.com',
+                    compact: compact,
+                  ),
+
+                  _infoCard(
+                    icon: Icons.verified_user_outlined,
+                    title: 'Hak Akses',
+                    value: 'Administrator',
+                    compact: compact,
+                  ),
+
+                  _infoCard(
+                    icon: Icons.school_outlined,
+                    title: 'Nama Sistem',
+                    value: 'MyEkskul',
+                    compact: compact,
+                  ),
+
+                  const Spacer(),
+
+                  // LOGOUT
+                  SizedBox(
+                    width: double.infinity,
+                    height: 46,
+                    child: OutlinedButton.icon(
+                      onPressed: () => _confirmLogout(context),
+                      icon: const Icon(
+                        Icons.logout_rounded,
+                        size: 19,
+                      ),
+                      label: const Text(
+                        'Logout',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red.shade700,
+                        backgroundColor: Colors.white,
+                        side: BorderSide(
+                          color: Colors.red.shade200,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -148,39 +190,36 @@ class AdminProfilePage extends StatelessWidget {
     required IconData icon,
     required String title,
     required String value,
+    required bool compact,
   }) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: compact ? 6 : 9),
+      padding: EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: compact ? 8 : 11,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.12),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: border),
       ),
       child: Row(
         children: [
           Container(
-            width: 45,
-            height: 45,
+            width: compact ? 36 : 40,
+            height: compact ? 36 : 40,
             decoration: BoxDecoration(
-              color: const Color(0xFFE3F2FD),
-              borderRadius: BorderRadius.circular(12),
+              color: softTeal,
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               icon,
-              color: const Color(0xFF1976D2),
+              color: primary,
+              size: 20,
             ),
           ),
-
-          const SizedBox(width: 15),
-
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,23 +227,86 @@ class AdminProfilePage extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
+                    color: muted,
+                    fontSize: 11,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Text(
                   value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                    color: textColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
           ),
+          const Icon(
+            Icons.check_circle_rounded,
+            color: primary,
+            size: 17,
+          ),
         ],
       ),
+    );
+  }
+
+  void _confirmLogout(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          title: const Text(
+            'Konfirmasi Logout',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: textColor,
+            ),
+          ),
+          content: const Text(
+            'Apakah kamu yakin ingin keluar dari akun admin?',
+            style: TextStyle(
+              color: muted,
+              fontSize: 13,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text(
+                'Batal',
+                style: TextStyle(color: muted),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Logout berhasil'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
