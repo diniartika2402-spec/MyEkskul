@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 import 'kuesioner_page.dart';
@@ -19,709 +20,601 @@ class DashboardPage extends StatelessWidget {
     required this.email,
   });
 
-  // =========================================================
+  static const Color navy = Color(0xFF172C3F);
+  static const Color teal = Color(0xFF0F766E);
+  static const Color mint = Color(0xFFE5F3F0);
+  static const Color background = Color(0xFFF5F7F8);
+  static const Color dark = Color(0xFF243447);
+  static const Color muted = Color(0xFF8793A1);
+  static const Color border = Color(0xFFE8EDF0);
+
   // NAVIGASI
-  // =========================================================
 
-  void _openKuesioner(BuildContext context) {
+  void openPage(BuildContext context, Widget page) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => KuesionerPage(
-          userId: userId,
+      MaterialPageRoute(builder: (_) => page),
+    );
+  }
+
+  void openKuesioner(BuildContext context) {
+    openPage(context, KuesionerPage(userId: userId));
+  }
+
+  void openHasil(BuildContext context) {
+    openPage(context, HasilPage(userId: userId));
+  }
+
+  void openEkskul(BuildContext context) {
+    openPage(context, const EkstrakurikulerPage());
+  }
+
+  void openProfile(BuildContext context) {
+    openPage(
+      context,
+      ProfilePage(
+        userId: userId,
+        nama: nama,
+        email: email,
+      ),
+    );
+  }
+
+  void openTentang(BuildContext context) {
+    openPage(context, const TentangPage());
+  }
+
+  Future<void> logout(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
         ),
-      ),
-    );
-  }
-
-  void _openHasil(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => HasilPage(
-          userId: userId,
+        title: const Text('Konfirmasi Logout'),
+        content: const Text(
+          'Apakah kamu yakin ingin keluar dari akun MyEkskul?',
         ),
-      ),
-    );
-  }
-
-  void _openEkskul(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const EkstrakurikulerPage(),
-      ),
-    );
-  }
-
-  void _openProfile(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ProfilePage(
-          userId: userId,
-          nama: nama,
-          email: email,
-        ),
-      ),
-    );
-  }
-
-  void _openTentang(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const TentangPage(),
-      ),
-    );
-  }
-
-  Future<void> _logout(BuildContext context) async {
-  final konfirmasi = await showDialog<bool>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      title: const Text('Konfirmasi Logout'),
-      content: const Text(
-        'Apakah kamu yakin ingin keluar dari akun MyEkskul?',
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.pop(dialogContext, false);
-          },
-          child: const Text('Batal'),
-        ),
-        ElevatedButton.icon(
-          onPressed: () {
-            Navigator.pop(dialogContext, true);
-          },
-          icon: const Icon(Icons.logout_rounded, size: 18),
-          label: const Text('Ya, Logout'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFDC2626),
-            foregroundColor: Colors.white,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Batal'),
           ),
-        ),
-      ],
-    ),
-  );
-
-  if (konfirmasi != true || !context.mounted) return;
-
-  Navigator.of(context).pushAndRemoveUntil(
-    MaterialPageRoute(
-      builder: (_) => const LoginPage(),
-    ),
-    (route) => false,
-  );
-}
-
-  // =========================================================
-  // BUILD
-  // =========================================================
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC),
-
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-
-              padding: const EdgeInsets.fromLTRB(
-                18,
-                16,
-                18,
-                20,
-              ),
-
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight - 36,
-                ),
-
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    // =====================================================
-                    // HEADER
-                    // =====================================================
-
-                    Row(
-                      children: [
-
-                        // LOGO
-                        Container(
-                          width: 46,
-                          height: 46,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF0F766E),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-
-                          child: const Icon(
-                            Icons.school_rounded,
-                            color: Colors.white,
-                            size: 25,
-                          ),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        // NAMA APLIKASI
-                        const Expanded(
-                          child: Text(
-                            'MyEkskul',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF172033),
-                            ),
-                          ),
-                        ),
-
-                    
-
-PopupMenuButton<String>(
-  tooltip: 'Menu akun',
-  icon: const Icon(
-    Icons.person_outline_rounded,
-    color: Color(0xFF334155),
-  ),
-  style: IconButton.styleFrom(
-    backgroundColor: Colors.white,
-    side: const BorderSide(
-      color: Color(0xFFE5EAF1),
-    ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(14),
-    ),
-    fixedSize: const Size(46, 46),
-  ),
-  onSelected: (value) {
-    if (value == 'profile') {
-      _openProfile(context);
-    } else if (value == 'logout') {
-      _logout(context);
-    }
-  },
-  itemBuilder: (context) => [
-    const PopupMenuItem<String>(
-      value: 'profile',
-      child: ListTile(
-        leading: Icon(Icons.person_outline_rounded),
-        title: Text('Profil Saya'),
-        contentPadding: EdgeInsets.zero,
-      ),
-    ),
-    const PopupMenuItem<String>(
-      value: 'logout',
-      child: ListTile(
-        leading: Icon(
-          Icons.logout_rounded,
-          color: Color(0xFFDC2626),
-        ),
-        title: Text(
-          'Logout',
-          style: TextStyle(color: Color(0xFFDC2626)),
-        ),
-        contentPadding: EdgeInsets.zero,
-      ),
-    ),
-  ],
-), // tutup PopupMenuButton
-      ],
-    ), // tutup Row
-
-const SizedBox(height: 22),
-
-
-
-
-                    // =====================================================
-                    // SAPAAN
-                    // =====================================================
-
-                    Text(
-                      'Halo, ${nama.split(' ').first} 👋',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-
-                      style: const TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF172033),
-                      ),
-                    ),
-
-                    const SizedBox(height: 6),
-
-                    const Text(
-                      'Temukan kegiatan yang sesuai dengan\nminat dan bakatmu.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        height: 1.45,
-                        color: Color(0xFF8993A4),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // =====================================================
-                    // CARD REKOMENDASI
-                    // =====================================================
-
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-
-                          colors: [
-                            Color(0xFF0F8B83),
-                            Color(0xFF0C756E),
-                          ],
-                        ),
-
-                        borderRadius: BorderRadius.circular(24),
-
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF0F766E)
-                                .withOpacity(0.18),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-
-                      child: Row(
-                        children: [
-
-                          // TEKS
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-
-                              children: [
-
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 5,
-                                  ),
-
-                                  decoration: BoxDecoration(
-                                    color: Colors.white
-                                        .withOpacity(0.16),
-                                    borderRadius:
-                                        BorderRadius.circular(20),
-                                  ),
-
-                                  child: const Text(
-                                    'REKOMENDASI EKSKUL',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: 0.6,
-                                    ),
-                                  ),
-                                ),
-
-                                const SizedBox(height: 12),
-
-                                const Text(
-                                  'Cari Ekskul\nYang Cocok\nUntukmu',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 21,
-                                    height: 1.08,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 8),
-
-                                const Text(
-                                  'Isi kuesioner singkat untuk mengetahui rekomendasi ekskul yang sesuai.',
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-
-                                  style: TextStyle(
-                                    color: Color(0xFFD6F3F0),
-                                    fontSize: 11,
-                                    height: 1.35,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 14),
-
-                                // TOMBOL
-                                SizedBox(
-                                  height: 40,
-
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      _openKuesioner(context);
-                                    },
-
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      foregroundColor:
-                                          const Color(0xFF0F766E),
-
-                                      elevation: 0,
-
-                                      padding:
-                                          const EdgeInsets.symmetric(
-                                        horizontal: 15,
-                                      ),
-
-                                      shape:
-                                          RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12),
-                                      ),
-                                    ),
-
-                                    child: const Row(
-                                      mainAxisSize:
-                                          MainAxisSize.min,
-
-                                      children: [
-
-                                        Text(
-                                          'Mulai Kuesioner',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight:
-                                                FontWeight.w800,
-                                          ),
-                                        ),
-
-                                        SizedBox(width: 7),
-
-                                        Icon(
-                                          Icons.arrow_forward_rounded,
-                                          size: 17,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(width: 8),
-
-                          // ICON KANAN
-                          Container(
-                            width: 64,
-                            height: 64,
-
-                            decoration: BoxDecoration(
-                              color: Colors.white
-                                  .withOpacity(0.12),
-                              shape: BoxShape.circle,
-                            ),
-
-                            child: const Icon(
-                              Icons.auto_awesome_rounded,
-                              color: Colors.white,
-                              size: 31,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // =====================================================
-                    // JUDUL MENU
-                    // =====================================================
-
-                    const Text(
-                      'Menu Utama',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF172033),
-                      ),
-                    ),
-
-                    const SizedBox(height: 4),
-
-                    const Text(
-                      'Akses fitur MyEkskul dengan mudah',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF9AA3B2),
-                      ),
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    // =====================================================
-                    // MENU GRID
-                    // =====================================================
-
-                    Row(
-                      children: [
-
-                        Expanded(
-                          child: _MenuCard(
-                            icon: Icons.assignment_rounded,
-                            title: 'Kuesioner',
-                            subtitle: 'Isi minat',
-                            iconColor: const Color(0xFF0F766E),
-                            iconBackground:
-                                const Color(0xFFE5F3F1),
-
-                            onTap: () {
-                              _openKuesioner(context);
-                            },
-                          ),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        Expanded(
-                          child: _MenuCard(
-                            icon: Icons.emoji_events_rounded,
-                            title: 'Hasil',
-                            subtitle: 'Rekomendasi',
-                            iconColor: const Color(0xFFD99000),
-                            iconBackground:
-                                const Color(0xFFFFF3D9),
-
-                            onTap: () {
-                              _openHasil(context);
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    Row(
-                      children: [
-
-                        Expanded(
-                          child: _MenuCard(
-                            icon: Icons.groups_rounded,
-                            title: 'Ekskul',
-                            subtitle: 'Daftar ekskul',
-                            iconColor: const Color(0xFF5968C7),
-                            iconBackground:
-                                const Color(0xFFEAECFA),
-
-                            onTap: () {
-                              _openEkskul(context);
-                            },
-                          ),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        Expanded(
-                          child: _MenuCard(
-                            icon: Icons.person_rounded,
-                            title: 'Profil',
-                            subtitle: 'Data akun',
-                            iconColor: const Color(0xFFD45D64),
-                            iconBackground:
-                                const Color(0xFFFCE9EA),
-
-                            onTap: () {
-                              _openProfile(context);
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 22),
-
-                    // =====================================================
-                    // TENTANG
-                    // =====================================================
-
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: () {
-                          _openTentang(context);
-                        },
-
-                        style: TextButton.styleFrom(
-                          foregroundColor:
-                              const Color(0xFF8B95A5),
-
-                          padding:
-                              const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 8,
-                          ),
-                        ),
-
-                        icon: const Icon(
-                          Icons.info_outline_rounded,
-                          size: 17,
-                        ),
-
-                        label: const Text(
-                          'Tentang MyEkskul',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-// =====================================================================
-// MENU CARD
-// =====================================================================
-
-class _MenuCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color iconColor;
-  final Color iconBackground;
-  final VoidCallback onTap;
-
-  const _MenuCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.iconColor,
-    required this.iconBackground,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(18),
-
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-
-        child: Container(
-          constraints: const BoxConstraints(
-            minHeight: 94,
-          ),
-
-          padding: const EdgeInsets.all(13),
-
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-
-            border: Border.all(
-              color: const Color(0xFFE7EBF1),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
             ),
-
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.025),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
-              ),
-            ],
+            child: const Text('Logout'),
           ),
+        ],
+      ),
+    );
 
-          child: Row(
+    if (result != true || !context.mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoginPage(),
+      ),
+      (route) => false,
+    );
+  }
+
+  // HEADER
+
+  Widget buildHeader(BuildContext context) {
+    final firstName = nama.trim().isEmpty
+        ? 'Siswa'
+        : nama.trim().split(' ').first;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 30),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFF172C3F),
+            Color(0xFF214B55),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(30),
+          bottomRight: Radius.circular(30),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-
               Container(
-                width: 43,
-                height: 43,
-
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
-                  color: iconBackground,
-                  borderRadius: BorderRadius.circular(13),
+                  color: Colors.white.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-
-                child: Icon(
-                  icon,
-                  color: iconColor,
-                  size: 22,
+                child: const Icon(
+                  Icons.school_rounded,
+                  color: Colors.white,
+                  size: 23,
                 ),
               ),
 
               const SizedBox(width: 10),
 
-              Expanded(
+              const Expanded(
                 child: Column(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center,
-
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF253044),
+                      'MyEkskul',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
                       ),
                     ),
-
-                    const SizedBox(height: 3),
-
                     Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Color(0xFF9AA3B2),
+                      'STUDENT PORTAL',
+                      style: TextStyle(
+                        color: Color(0xFFB5D3D0),
+                        fontSize: 8,
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(width: 4),
+              PopupMenuButton<String>(
+                icon: const Icon(
+                  Icons.account_circle_outlined,
+                  color: Colors.white,
+                  size: 28,
+                ),
+                tooltip: 'Menu akun',
+                onSelected: (value) {
+                  if (value == 'profile') {
+                    openProfile(context);
+                  } else if (value == 'logout') {
+                    logout(context);
+                  }
+                },
+                itemBuilder: (_) => [
+                  const PopupMenuItem(
+                    value: 'profile',
+                    child: Text('Profil Saya'),
+                  ),
+                  const PopupMenuItem(
+                    value: 'logout',
+                    child: Text('Logout'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 32),
+
+          const Text(
+            'SELAMAT DATANG KEMBALI',
+            style: TextStyle(
+              fontSize: 10,
+              letterSpacing: 1.6,
+              color: Color(0xFF9FCAC3),
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          Text(
+            'Halo, $firstName!',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 29,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.7,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          const Text(
+            'Saatnya mengenali potensi dan mengembangkan '
+            'bakat terbaikmu.',
+            style: TextStyle(
+              color: Color(0xFFD1DFE3),
+              fontSize: 12,
+              height: 1.6,
+            ),
+          ),
+
+          const SizedBox(height: 23),
+
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 13,
+              vertical: 11,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.09),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.10),
+              ),
+            ),
+            child: const Row(
+              children: [
+                Icon(
+                  Icons.lightbulb_outline_rounded,
+                  color: Color(0xFF9FE0CE),
+                  size: 18,
+                ),
+                SizedBox(width: 9),
+                Expanded(
+                  child: Text(
+                    'Kenali minatmu, temukan kegiatan favoritmu.',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // REKOMENDASI
+
+  Widget buildRecommendation(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(19),
+      decoration: BoxDecoration(
+        color: teal,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'LANGKAH PERTAMAMU',
+                  style: TextStyle(
+                    color: Color(0xFFC5EAE2),
+                    fontSize: 9,
+                    letterSpacing: 1.3,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.auto_awesome_rounded,
+                color: Colors.white.withOpacity(0.8),
+                size: 21,
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 13),
+
+          const Text(
+            'Sudah tahu ekskul\nyang cocok untukmu?',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+              fontSize: 21,
+              height: 1.25,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          const Text(
+            'Isi kuesioner dan dapatkan rekomendasi '
+            'ekstrakurikuler berdasarkan minat dan bakatmu.',
+            style: TextStyle(
+              color: Color(0xFFD9F0EB),
+              fontSize: 11,
+              height: 1.5,
+            ),
+          ),
+
+          const SizedBox(height: 17),
+
+          SizedBox(
+            width: double.infinity,
+            height: 43,
+            child: ElevatedButton(
+              onPressed: () => openKuesioner(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: teal,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(11),
+                ),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Mulai Kuesioner',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 12,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 17,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // MENU ITEM
+
+  Widget menuItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color iconColor,
+    required Color iconBg,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(15),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(15),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 13,
+            vertical: 14,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: border),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 43,
+                height: 43,
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: iconColor,
+                  size: 21,
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: dark,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: muted,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
               const Icon(
-                Icons.chevron_right_rounded,
-                size: 19,
-                color: Color(0xFFB5BDCA),
+                Icons.arrow_forward_ios_rounded,
+                color: Color(0xFFABB5BE),
+                size: 14,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // BUILD
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: background,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildHeader(context),
+
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  18, 25, 18, 25,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildRecommendation(context),
+
+                    const SizedBox(height: 27),
+
+                    const Text(
+                      'Jelajahi MyEkskul',
+                      style: TextStyle(
+                        color: dark,
+                        fontSize: 19,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+
+                    const SizedBox(height: 5),
+
+                    const Text(
+                      'Pilih fitur yang ingin kamu akses.',
+                      style: TextStyle(
+                        color: muted,
+                        fontSize: 11,
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    menuItem(
+                      icon: Icons.assignment_outlined,
+                      title: 'Kuesioner Minat',
+                      subtitle: 'Kenali minat dan bakatmu',
+                      iconColor: teal,
+                      iconBg: const Color(0xFFE3F2EF),
+                      onTap: () => openKuesioner(context),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    menuItem(
+                      icon: Icons.emoji_events_outlined,
+                      title: 'Hasil Rekomendasi',
+                      subtitle: 'Lihat hasil rekomendasi ekskul',
+                      iconColor: const Color(0xFFD18A18),
+                      iconBg: const Color(0xFFFFF2D9),
+                      onTap: () => openHasil(context),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    menuItem(
+                      icon: Icons.groups_outlined,
+                      title: 'Daftar Ekstrakurikuler',
+                      subtitle: 'Jelajahi kegiatan sekolah',
+                      iconColor: const Color(0xFF5868C7),
+                      iconBg: const Color(0xFFEAECFA),
+                      onTap: () => openEkskul(context),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    menuItem(
+                      icon: Icons.person_outline_rounded,
+                      title: 'Profil Saya',
+                      subtitle: 'Lihat informasi akun',
+                      iconColor: const Color(0xFFD45D64),
+                      iconBg: const Color(0xFFFCE9EA),
+                      onTap: () => openProfile(context),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    // ABOUT
+
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F2F0),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.school_outlined,
+                            color: teal,
+                            size: 27,
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Tentang MyEkskul',
+                                  style: TextStyle(
+                                    color: navy,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  'Kenali platform pengembangan '
+                                  'minat dan bakat siswa.',
+                                  style: TextStyle(
+                                    color: muted,
+                                    fontSize: 10,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => openTentang(context),
+                            icon: const Icon(
+                              Icons.arrow_forward_rounded,
+                              color: teal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    const Center(
+                      child: Text(
+                        'MYEKSKUL • KEMBANGKAN POTENSIMU',
+                        style: TextStyle(
+                          color: muted,
+                          fontSize: 9,
+                          letterSpacing: 1,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
