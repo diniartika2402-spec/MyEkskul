@@ -1,5 +1,8 @@
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class AdminUsersPage extends StatefulWidget {
   const AdminUsersPage({super.key});
@@ -17,58 +20,30 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
   static const Color border = Color(0xFFE7EBF1);
   static const Color softTeal = Color(0xFFE0F2F1);
 
+  // URL PHP API
+  static const String getUrl =
+      'http://10.0.2.2/myekskul_api/user/get.php';
+
+  static const String hapusUrl =
+      'http://10.0.2.2/myekskul_api/user/hapus.php';
+
   final TextEditingController searchController =
       TextEditingController();
 
-  final List<Map<String, String>> users = [
-    {
-      'nama': 'Dini Artika',
-      'email': 'dini@gmail.com',
-      'role': 'Siswa',
-    },
-    {
-      'nama': 'Andi Saputra',
-      'email': 'andi@gmail.com',
-      'role': 'Siswa',
-    },
-    {
-      'nama': 'Siti Rahma',
-      'email': 'siti@gmail.com',
-      'role': 'Siswa',
-    },
-    {
-      'nama': 'Admin MyEkskul',
-      'email': 'admin@myekskul.com',
-      'role': 'Admin',
-    },
-  ];
+  List<Map<String, dynamic>> users = [];
 
+  bool isLoading = true;
+  bool isDeleting = false;
+
+  String? errorMessage;
   String kataKunci = '';
   String filterRole = 'Semua';
 
-  // Filter pengguna berdasarkan pencarian dan role.
-  List<Map<String, String>> get usersTerfilter {
-    return users.where((user) {
-      final nama = (user['nama'] ?? '').toLowerCase();
-      final email = (user['email'] ?? '').toLowerCase();
-      final role = user['role'] ?? '';
-
-      final cocokPencarian =
-          nama.contains(kataKunci) ||
-          email.contains(kataKunci);
-
-      final cocokRole =
-          filterRole == 'Semua' || filterRole == role;
-
-      return cocokPencarian && cocokRole;
-    }).toList();
+  @override
+  void initState() {
+    super.initState();
+    ambilUsers();
   }
-
-  int get jumlahSiswa =>
-      users.where((user) => user['role'] == 'Siswa').length;
-
-  int get jumlahAdmin =>
-      users.where((user) => user['role'] == 'Admin').length;
 
   @override
   void dispose() {
@@ -76,8 +51,170 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     super.dispose();
   }
 
-  // Dialog konfirmasi hapus pengguna.
-  void hapusUser(Map<String, String> user) {
+  // Mengambil data pengguna dari database.
+  Future<void> ambilUsers() async {
+    if (!mounted) return;
+
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      final response = await http
+          .get(Uri.parse(getUrl))
+          .timeout(const Duration(seconds: 15));
+
+      final result = jsonDecode(response.body);
+
+      if (response.statusCode == 200 &&
+          result['success'] == true) {
+        final List<dynamic> data = result['data'] ?? [];
+
+        final List<Map<String, dynamic>> dataUsers =
+            data.map((item) {
+          final user = Map<String, dynamic>.from(item);
+
+          // Konversi role database ke tampilan.
+          user['role'] = user['role'] == 'admin'
+              ? 'Admin'
+              : 'Siswa';
+
+          user['id'] = int.tryParse(
+                user['id'].toString(),
+              ) ??
+              0;
+
+          return user;
+        }).toList();
+
+        if (!mounted) return;
+
+        setState(() {
+          users = dataUsers;
+          isLoading = false;
+        });
+      } else {
+        throw Exception(
+          result['message'] ?? 'Gagal mengambil data pengguna',
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Gagal mengambil data pengguna.';
+      });
+
+      tampilkanPesan(errorMessage!);
+    }
+  }
+
+  // Pesan notifikasi.
+  void tampilkanPesan(String pesan) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(pesan),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+  }
+
+  // Filter pencarian dan role.
+  List<Map<String, dynamic>> get usersTerfilter {
+    return users.where((user) {
+      final nama = (user['nama'] ?? '')
+          .toString()
+          .toLowerCase();
+
+      final email = (user['email'] ?? '')
+          .toString()
+          .toLowerCase();
+
+      final role = user['role'] ?? '';
+
+      final cocokPencarian =
+          nama.contains(kataKunci) ||
+          email.contains(kataKunci);
+
+      final cocokRole =
+          filterRole == 'Semua' ||
+          filterRole == role;
+
+      return cocokPencarian && cocokRole;
+    }).toList();
+  }
+
+  int get jumlahSiswa =>
+      users.where((u) => u['role'] == 'Siswa').length;
+
+  int get jumlahAdmin =>
+      users.where((u) => u['role'] == 'Admin').length;
+
+  // Menghapus pengguna melalui PHP API.
+  Future<void> hapusUser(Map<String, dynamic> user) async {
+    final id = user['id'];
+
+    if (id == null || id <= 0) {
+      tampilkanPesan('ID pengguna tidak valid');
+      return;
+    }
+
+    setState(() {
+      isDeleting = true;
+    });
+
+    try {
+      final response = await http
+          .post(
+            Uri.parse(hapusUrl),
+            body: {
+              'id': id.toString(),
+            },
+          )
+          .timeout(const Duration(seconds: 15));
+
+      final result = jsonDecode(response.body);
+
+      if (response.statusCode == 200 &&
+          result['success'] == true) {
+        tampilkanPesan(
+          result['message'] ??
+              'Pengguna berhasil dihapus',
+        );
+
+        await ambilUsers();
+      } else {
+        tampilkanPesan(
+          result['message'] ??
+              'Gagal menghapus pengguna',
+        );
+      }
+    } catch (e) {
+      tampilkanPesan(
+        'Terjadi kesalahan saat menghapus pengguna',
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isDeleting = false;
+        });
+      }
+    }
+  }
+
+  // Dialog konfirmasi hapus.
+  void konfirmasiHapus(Map<String, dynamic> user) {
+    if (user['role'] == 'Admin') {
+      tampilkanPesan('Akun admin tidak dapat dihapus');
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (dialogContext) {
@@ -106,20 +243,12 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  users.remove(user);
-                });
-
-                Navigator.pop(dialogContext);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Pengguna berhasil dihapus'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              },
+              onPressed: isDeleting
+                  ? null
+                  : () {
+                      Navigator.pop(dialogContext);
+                      hapusUser(user);
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
@@ -189,7 +318,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     );
   }
 
-  // Label role pengguna.
+  // Label role.
   Widget buildRoleBadge(String role) {
     final bool isAdmin = role == 'Admin';
 
@@ -217,7 +346,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
     );
   }
 
-  // Tabel pengguna tanpa scroll horizontal.
+  // Tabel pengguna.
   Widget buildTable() {
     final data = usersTerfilter;
 
@@ -247,7 +376,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
             ),
             SizedBox(height: 5),
             Text(
-              'Coba gunakan kata kunci atau filter lain.',
+              'Belum ada data pengguna yang sesuai.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: muted,
@@ -268,101 +397,107 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(13),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return DataTable(
-              columnSpacing: 4,
-              horizontalMargin: 8,
-              dataRowMinHeight: 65,
-              dataRowMaxHeight: 75,
-              headingRowHeight: 45,
-              headingRowColor:
-                  WidgetStateProperty.all(softTeal),
-              headingTextStyle: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                color: primary,
-              ),
-              dataTextStyle: const TextStyle(
-                fontSize: 11,
-                color: textDark,
-              ),
-              columns: const [
-                DataColumn(label: Text('No')),
-                DataColumn(label: Text('Pengguna')),
-                DataColumn(label: Text('Role')),
-                DataColumn(label: Text('Aksi')),
-              ],
-              rows: List.generate(data.length, (index) {
-                final user = data[index];
+        child: DataTable(
+          columnSpacing: 4,
+          horizontalMargin: 8,
+          dataRowMinHeight: 65,
+          dataRowMaxHeight: 75,
+          headingRowHeight: 45,
+          headingRowColor:
+              WidgetStateProperty.all(softTeal),
+          headingTextStyle: const TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            color: primary,
+          ),
+          dataTextStyle: const TextStyle(
+            fontSize: 11,
+            color: textDark,
+          ),
+          columns: const [
+            DataColumn(label: Text('No')),
+            DataColumn(label: Text('Pengguna')),
+            DataColumn(label: Text('Role')),
+            DataColumn(label: Text('Aksi')),
+          ],
+          rows: List.generate(data.length, (index) {
+            final user = data[index];
+            final bool isAdmin = user['role'] == 'Admin';
 
-                return DataRow(
-                  cells: [
-                    DataCell(
-                      Text('${index + 1}'),
-                    ),
-                    DataCell(
-                      SizedBox(
-                        width: 125,
-                        child: Column(
-                          mainAxisAlignment:
-                              MainAxisAlignment.center,
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              user['nama'] ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: textDark,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              user['email'] ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 9,
-                                color: muted,
-                              ),
-                            ),
-                          ],
+            return DataRow(
+              cells: [
+                DataCell(
+                  Text('${index + 1}'),
+                ),
+                DataCell(
+                  SizedBox(
+                    width: 125,
+                    child: Column(
+                      mainAxisAlignment:
+                          MainAxisAlignment.center,
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user['nama']?.toString() ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: textDark,
+                          ),
                         ),
-                      ),
-                    ),
-                    DataCell(
-                      buildRoleBadge(user['role'] ?? ''),
-                    ),
-                    DataCell(
-                      IconButton(
-                        tooltip: 'Hapus pengguna',
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 30,
-                          minHeight: 35,
+                        const SizedBox(height: 4),
+                        Text(
+                          user['email']?.toString() ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 9,
+                            color: muted,
+                          ),
                         ),
-                        onPressed: () => hapusUser(user),
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: Colors.redAccent,
-                          size: 19,
-                        ),
-                      ),
+                      ],
                     ),
-                  ],
-                );
-              }),
+                  ),
+                ),
+                DataCell(
+                  buildRoleBadge(
+                    user['role']?.toString() ?? '',
+                  ),
+                ),
+                DataCell(
+                  IconButton(
+                    tooltip: isAdmin
+                        ? 'Admin tidak dapat dihapus'
+                        : 'Hapus pengguna',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 30,
+                      minHeight: 35,
+                    ),
+                    onPressed: isAdmin || isDeleting
+                        ? null
+                        : () => konfirmasiHapus(user),
+                    icon: Icon(
+                      Icons.delete_outline,
+                      color: isAdmin
+                          ? Colors.grey.shade400
+                          : Colors.redAccent,
+                      size: 19,
+                    ),
+                  ),
+                ),
+              ],
             );
-          },
+          }),
         ),
       ),
     );
   }
 
+  // Tampilan utama.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -380,167 +515,242 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
             color: textDark,
           ),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Refresh',
+            onPressed: isLoading ? null : ambilUsers,
+            icon: const Icon(Icons.refresh),
+          ),
+          const SizedBox(width: 5),
+        ],
       ),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(18),
-          children: [
-            const Text(
-              'Manajemen Pengguna',
-              style: TextStyle(
-                fontSize: 21,
-                fontWeight: FontWeight.bold,
-                color: textDark,
-              ),
-            ),
-            const SizedBox(height: 5),
-            const Text(
-              'Lihat dan kelola data pengguna MyEkskul.',
-              style: TextStyle(
-                fontSize: 13,
-                color: muted,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Statistik pengguna.
-            Row(
-              children: [
-                buildStatCard(
-                  'Total',
-                  users.length,
-                  Icons.people_outline,
-                  primary,
+        child: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: primary,
                 ),
-                const SizedBox(width: 8),
-                buildStatCard(
-                  'Siswa',
-                  jumlahSiswa,
-                  Icons.school_outlined,
-                  Colors.blue,
-                ),
-                const SizedBox(width: 8),
-                buildStatCard(
-                  'Admin',
-                  jumlahAdmin,
-                  Icons.admin_panel_settings_outlined,
-                  Colors.orange,
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            const Text(
-              'Daftar Pengguna',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: textDark,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Pencarian.
-            TextField(
-              controller: searchController,
-              onChanged: (value) {
-                setState(() {
-                  kataKunci = value.toLowerCase().trim();
-                });
-              },
-              decoration: InputDecoration(
-                hintText: 'Cari nama atau email...',
-                hintStyle: const TextStyle(
-                  fontSize: 13,
-                  color: muted,
-                ),
-                prefixIcon: const Icon(
-                  Icons.search,
-                  color: muted,
-                ),
-                suffixIcon: kataKunci.isNotEmpty
-                    ? IconButton(
-                        onPressed: () {
-                          searchController.clear();
-                          setState(() {
-                            kataKunci = '';
-                          });
-                        },
-                        icon: const Icon(Icons.close),
-                      )
-                    : null,
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 14,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: border),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: border),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
+              )
+            : errorMessage != null && users.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(25),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.cloud_off_outlined,
+                            size: 50,
+                            color: muted,
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Gagal memuat pengguna',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: textDark,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            errorMessage!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: muted,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 15),
+                          ElevatedButton.icon(
+                            onPressed: ambilUsers,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Coba Lagi'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primary,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: ambilUsers,
                     color: primary,
-                    width: 1.5,
+                    child: ListView(
+                      padding: const EdgeInsets.all(18),
+                      children: [
+                        const Text(
+                          'Manajemen Pengguna',
+                          style: TextStyle(
+                            fontSize: 21,
+                            fontWeight: FontWeight.bold,
+                            color: textDark,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        const Text(
+                          'Lihat dan kelola data pengguna MyEkskul.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: muted,
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Statistik.
+                        Row(
+                          children: [
+                            buildStatCard(
+                              'Total',
+                              users.length,
+                              Icons.people_outline,
+                              primary,
+                            ),
+                            const SizedBox(width: 8),
+                            buildStatCard(
+                              'Siswa',
+                              jumlahSiswa,
+                              Icons.school_outlined,
+                              Colors.blue,
+                            ),
+                            const SizedBox(width: 8),
+                            buildStatCard(
+                              'Admin',
+                              jumlahAdmin,
+                              Icons.admin_panel_settings_outlined,
+                              Colors.orange,
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        const Text(
+                          'Daftar Pengguna',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: textDark,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Pencarian.
+                        TextField(
+                          controller: searchController,
+                          onChanged: (value) {
+                            setState(() {
+                              kataKunci =
+                                  value.toLowerCase().trim();
+                            });
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'Cari nama atau email...',
+                            hintStyle: const TextStyle(
+                              fontSize: 13,
+                              color: muted,
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.search,
+                              color: muted,
+                            ),
+                            suffixIcon: kataKunci.isNotEmpty
+                                ? IconButton(
+                                    onPressed: () {
+                                      searchController.clear();
+                                      setState(() {
+                                        kataKunci = '';
+                                      });
+                                    },
+                                    icon: const Icon(Icons.close),
+                                  )
+                                : null,
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding:
+                                const EdgeInsets.symmetric(
+                              vertical: 14,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.circular(12),
+                              borderSide:
+                                  const BorderSide(color: border),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.circular(12),
+                              borderSide:
+                                  const BorderSide(color: border),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: primary,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Filter role.
+                        Wrap(
+                          spacing: 8,
+                          children: ['Semua', 'Siswa', 'Admin']
+                              .map((role) {
+                            final selected = filterRole == role;
+
+                            return ChoiceChip(
+                              label: Text(role),
+                              selected: selected,
+                              onSelected: (_) {
+                                setState(() {
+                                  filterRole = role;
+                                });
+                              },
+                              selectedColor: primary,
+                              backgroundColor: Colors.white,
+                              showCheckmark: false,
+                              labelStyle: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: selected
+                                    ? Colors.white
+                                    : muted,
+                              ),
+                              side: BorderSide(
+                                color: selected
+                                    ? primary
+                                    : border,
+                              ),
+                            );
+                          }).toList(),
+                        ),
+
+                        const SizedBox(height: 15),
+
+                        Text(
+                          '${usersTerfilter.length} pengguna ditampilkan',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: muted,
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        buildTable(),
+
+                        const SizedBox(height: 20),
+                      ],
+                    ),
                   ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            // Filter role.
-            Wrap(
-              spacing: 8,
-              children: ['Semua', 'Siswa', 'Admin'].map((role) {
-                final selected = filterRole == role;
-
-                return ChoiceChip(
-                  label: Text(role),
-                  selected: selected,
-                  onSelected: (_) {
-                    setState(() {
-                      filterRole = role;
-                    });
-                  },
-                  selectedColor: primary,
-                  backgroundColor: Colors.white,
-                  showCheckmark: false,
-                  labelStyle: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: selected ? Colors.white : muted,
-                  ),
-                  side: BorderSide(
-                    color: selected ? primary : border,
-                  ),
-                );
-              }).toList(),
-            ),
-
-            const SizedBox(height: 15),
-
-            Text(
-              '${usersTerfilter.length} pengguna ditampilkan',
-              style: const TextStyle(
-                fontSize: 12,
-                color: muted,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // Tabel utama.
-            buildTable(),
-          ],
-        ),
       ),
     );
   }
