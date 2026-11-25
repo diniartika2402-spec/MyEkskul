@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import '../pendaftaran/siswa/pendaftaran_page.dart';
 
 class DetailEkstrakurikulerPage extends StatelessWidget {
   final String nama;
