@@ -7,7 +7,12 @@ import 'package:http/http.dart' as http;
 import 'detail_ekstrakurikuler_page.dart';
 
 class EkstrakurikulerPage extends StatefulWidget {
-  const EkstrakurikulerPage({super.key});
+  final int userId;
+
+  const EkstrakurikulerPage({
+    super.key,
+    required this.userId,
+  });
 
   @override
   State<EkstrakurikulerPage> createState() =>
