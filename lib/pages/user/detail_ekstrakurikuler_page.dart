@@ -141,18 +141,54 @@ class DetailEkstrakurikulerPage extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               _InfoCard(
-                icon: Icons.person_outline_rounded,
-                title: 'Pembina',
-                value: pembina,
-                emptyText: 'Belum ada informasi pembina',
-              ),
+  icon: Icons.person_outline_rounded,
+  title: 'Pembina',
+  value: pembina,
+  emptyText: 'Belum ada informasi pembina',
+),
 
-              const SizedBox(height: 28),
+// TOMBOL PENDAFTARAN
+const SizedBox(height: 22),
 
-              _judulBagian(
-                'Dokumentasi',
-                Icons.photo_library_outlined,
-              ),
+SizedBox(
+  width: double.infinity,
+  height: 52,
+  child: ElevatedButton.icon(
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PendaftaranPage(
+            namaEkskul: nama,
+          ),
+        ),
+      );
+    },
+    icon: const Icon(Icons.assignment_outlined),
+    label: const Text(
+      'Daftar Sekarang',
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w800,
+      ),
+    ),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: primary,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+      ),
+    ),
+  ),
+),
+
+const SizedBox(height: 28),
+
+_judulBagian(
+  'Dokumentasi',
+  Icons.photo_library_outlined,
+),
               const SizedBox(height: 5),
               const Text(
                 'Momen kegiatan ekstrakurikuler',
