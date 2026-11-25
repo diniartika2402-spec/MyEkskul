@@ -191,6 +191,7 @@ class _HasilPageState extends State<HasilPage> {
         );
         return;
       }
+      final Map<String, dynamic> detailEkskul = detail;
 
       // Dokumentasi dapat berupa List JSON atau String JSON.
       dynamic dokumentasiRaw = detail['dokumentasi'];
@@ -206,26 +207,36 @@ class _HasilPageState extends State<HasilPage> {
 
       final List<dynamic> dokumentasi =
           dokumentasiRaw is List ? dokumentasiRaw : [];
+      final int? ekskulId = int.tryParse(
+  _teks(detail['id'] ?? detail['ekskul_id']),
+);
+
+if (ekskulId == null) {
+  _pesan('ID ekstrakurikuler tidak ditemukan.');
+  return;
+}
 
       await Navigator.push(
-        context,
-        MaterialPageRoute<void>(
-          builder: (_) => DetailEkstrakurikulerPage(
-            nama: _teks(
-              detail!['nama'] ?? detail['nama_ekskul'],
-              nama,
-            ),
-            deskripsi: _teks(
-              detail['deskripsi'] ??
-                  rekomendasiItem['deskripsi'],
-            ),
-            jadwal: _teks(detail['jadwal']),
-            lokasi: _teks(detail['lokasi']),
-            pembina: _teks(detail['pembina']),
-            dokumentasi: dokumentasi,
-          ),
-        ),
-      );
+  context,
+  MaterialPageRoute<void>(
+    builder: (_) => DetailEkstrakurikulerPage(
+      ekskulId: ekskulId,
+      userId: widget.userId,
+      nama: _teks(
+        detailEkskul['nama'] ?? detailEkskul['nama_ekskul'],
+        nama,
+      ),
+      deskripsi: _teks(
+        detailEkskul['deskripsi'] ??
+            rekomendasiItem['deskripsi'],
+      ),
+      jadwal: _teks(detailEkskul['jadwal']),
+      lokasi: _teks(detailEkskul['lokasi']),
+      pembina: _teks(detailEkskul['pembina']),
+      dokumentasi: dokumentasi,
+    ),
+  ),
+);
     } catch (e) {
       debugPrint('Gagal membuka detail ekskul: $e');
 

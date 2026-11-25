@@ -49,9 +49,7 @@ class DashboardPage extends StatelessWidget {
   void openEkskul(BuildContext context) {
   openPage(
     context,
-    EkstrakurikulerPage(
-      userId: userId,
-    ),
+    EkstrakurikulerPage(userId: userId),
   );
 }
 

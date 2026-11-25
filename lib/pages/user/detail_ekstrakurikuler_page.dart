@@ -9,9 +9,13 @@ class DetailEkstrakurikulerPage extends StatelessWidget {
   final String lokasi;
   final String pembina;
   final List<dynamic> dokumentasi;
+  final int ekskulId;
+  final int userId;
 
   const DetailEkstrakurikulerPage({
     super.key,
+    required this.ekskulId,
+    required this.userId,
     required this.nama,
     required this.deskripsi,
     required this.jadwal,
@@ -159,8 +163,10 @@ SizedBox(
         context,
         MaterialPageRoute(
           builder: (_) => PendaftaranPage(
-            namaEkskul: nama,
-          ),
+  namaEkskul: nama,
+  userId: userId,
+  ekskulId: ekskulId,
+),
         ),
       );
     },

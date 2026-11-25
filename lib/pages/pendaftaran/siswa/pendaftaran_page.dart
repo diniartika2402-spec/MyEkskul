@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 
 class PendaftaranPage extends StatefulWidget {
   final String namaEkskul;
+  final int userId;
+  final int ekskulId;
 
   const PendaftaranPage({
-    super.key,
-    required this.namaEkskul,
-  });
+  super.key,
+  required this.namaEkskul,
+  required this.userId,
+  required this.ekskulId,
+});
 
   @override
   State<PendaftaranPage> createState() =>

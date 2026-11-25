@@ -151,20 +151,22 @@ class _EkstrakurikulerPageState
   }
 
   void bukaDetail(Map<String, dynamic> ekskul) {
-    Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (_) => DetailEkstrakurikulerPage(
-          nama: _teks(ekskul['nama'], 'Ekstrakurikuler'),
-          deskripsi: _teks(ekskul['deskripsi']),
-          jadwal: _teks(ekskul['jadwal']),
-          lokasi: _teks(ekskul['lokasi']),
-          pembina: _teks(ekskul['pembina']),
-          dokumentasi: _dokumentasi(ekskul['dokumentasi']),
-        ),
+  Navigator.push(
+    context,
+    MaterialPageRoute<void>(
+      builder: (_) => DetailEkstrakurikulerPage(
+        ekskulId: int.parse(ekskul['id'].toString()),
+        userId: widget.userId,
+        nama: _teks(ekskul['nama'], 'Ekstrakurikuler'),
+        deskripsi: _teks(ekskul['deskripsi']),
+        jadwal: _teks(ekskul['jadwal']),
+        lokasi: _teks(ekskul['lokasi']),
+        pembina: _teks(ekskul['pembina']),
+        dokumentasi: _dokumentasi(ekskul['dokumentasi']),
       ),
-    );
-  }
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
