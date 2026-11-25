@@ -1,6 +1,9 @@
 
 import 'package:flutter/material.dart';
 
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 class PendaftaranPage extends StatefulWidget {
   final String namaEkskul;
   final int userId;
@@ -22,6 +25,8 @@ class _PendaftaranPageState extends State<PendaftaranPage> {
   static const Color teal = Color(0xFF0F766E);
   static const Color tealDark = Color(0xFF115E59);
   static const Color background = Color(0xFFF4F7F7);
+  static const String baseUrl =
+    'http://10.0.2.2/myekskul_api';
 
   final _formKey = GlobalKey<FormState>();
 
@@ -48,22 +53,75 @@ class _PendaftaranPageState extends State<PendaftaranPage> {
     super.dispose();
   }
 
-  void _kirimPendaftaran() {
-    if (!_formKey.currentState!.validate()) return;
+  
+Future<void> _kirimPendaftaran() async {
+  if (!_formKey.currentState!.validate()) return;
 
-    // Integrasi API pendaftaran akan ditambahkan
-    // setelah menyesuaikan endpoint PHP.
+  setState(() {
+    isLoading = true;
+  });
+
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/pendaftaran/siswa/tambah.php'),
+      body: {
+        'user_id': widget.userId.toString(),
+        'ekskul_id': widget.ekskulId.toString(),
+        'alasan': _alasanController.text.trim(),
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    final dynamic data = jsonDecode(response.body);
+
+    if (data is! Map) {
+      throw Exception('Respons server tidak valid');
+    }
+
+    if (response.statusCode == 200 &&
+        data['success'] == true) {
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            data['message'] ??
+                'Pendaftaran berhasil dikirim.',
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      Navigator.pop(context, true);
+
+    } else {
+      throw Exception(
+        data['message'] ??
+            'Pendaftaran gagal dikirim.',
+      );
+    }
+  } catch (e) {
+    if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text(
-          'Formulir berhasil divalidasi. '
-          'Selanjutnya hubungkan dengan API.',
+          'Gagal mengirim pendaftaran: $e',
         ),
+        backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
       ),
     );
+  } finally {
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
