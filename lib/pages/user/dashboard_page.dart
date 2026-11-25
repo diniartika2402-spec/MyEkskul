@@ -7,6 +7,7 @@ import 'ekstrakurikuler_page.dart';
 import 'profile_page.dart';
 import 'tentang_page.dart';
 import '../auth/login_page.dart';
+import 'kuesioner_intro_page.dart';
 
 class DashboardPage extends StatelessWidget {
   final int userId;
@@ -38,8 +39,8 @@ class DashboardPage extends StatelessWidget {
   }
 
   void openKuesioner(BuildContext context) {
-    openPage(context, KuesionerPage(userId: userId));
-  }
+  openPage(context, KuesionerIntroPage(userId: userId));
+}
 
   void openHasil(BuildContext context) {
     openPage(context, HasilPage(userId: userId));
